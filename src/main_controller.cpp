@@ -7,7 +7,7 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_settings = boost::make_shared<Settings>();
 
   m_rm = boost::make_shared<RulesetManager>(boost::ref(io), m_settings);
-  m_rm->onScanResult.connect(boost::bind(&MainController::handleScanResult, this, _1, _2));
+  m_rm->onScanResult.connect(boost::bind(&MainController::handleScanResult, this, _1, _2, _3));
   m_rm->onScanComplete.connect(boost::bind(&MainController::handleScanComplete, this, _1));
   m_rm->onRulesUpdated.connect(boost::bind(&MainController::handleRulesUpdated, this));
 
@@ -33,9 +33,9 @@ void MainController::handleChangeRuleset(RulesetView::Ref ruleset)
   scan();
 }
 
-void MainController::handleScanResult(const std::string& target, ScannerRule::Ref rule)
+void MainController::handleScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view)
 {
-  m_mainWindow->addScanResult(target, rule);
+  m_mainWindow->addScanResult(target, rule, view);
 }
 
 void MainController::handleScanComplete(const std::string& error)

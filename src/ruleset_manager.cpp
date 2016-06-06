@@ -105,7 +105,7 @@ void RulesetManager::handleRuleCompile(Scanner::CompileResult::Ref compileResult
 void RulesetManager::handleScanResult(ScannerRule::Ref rule)
 {
   if (rule) {
-    onScanResult(m_queueTargets.front(), rule);
+    onScanResult(m_queueTargets.front(), rule, m_queueRules.front()->view());
   }
 }
 
@@ -114,7 +114,7 @@ void RulesetManager::handleScanComplete(const std::string& error)
   /* move onto the next rule. if there are no more rules, move on to the next target */
   m_queueRules.pop_front();
   if (m_queueRules.empty()) {
-    onScanResult(m_queueTargets.front(), ScannerRule::Ref()); /* empty rule signals target complete */
+    onScanResult(m_queueTargets.front(), ScannerRule::Ref(), RulesetView::Ref()); /* empty rule signals target complete */
     m_queueTargets.pop_front();
   }
   scanWithCompiledRules();

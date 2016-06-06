@@ -33,6 +33,12 @@ MainWindow::MainWindow()
   m_ui.tree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
   m_ui.tree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
   m_ui.tree->header()->setStretchLastSection(false);
+  connect(m_ui.tree, SIGNAL(itemSelectionChanged()), this, SLOT(treeItemSelectionChanged()));
+
+  m_targetPanel = new TargetPanel(this);
+  m_ui.mainLayout->addWidget(m_targetPanel);
+  m_matchPanel = new MatchPanel(this);
+  m_ui.mainLayout->addWidget(m_matchPanel);
 
   show();
 }
@@ -75,7 +81,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
   connect(configure, SIGNAL(triggered()), this, SLOT(handleEditRulesMenu()));
 }
 
-void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule)
+void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view)
 {
   QTreeWidgetItem* root = 0;
   if (m_treeItems.find(target) != m_treeItems.end()) {
@@ -83,6 +89,7 @@ void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule)
   } else {
     root = new QTreeWidgetItem(m_ui.tree);
     m_treeItems[target] = root;
+    m_targetMap[root] = target; /* reverse map */
     m_ui.tree->insertTopLevelItem(0, root);
     root->setText(0, target.c_str());
     root->setText(1, tr("No matches"));
@@ -97,7 +104,16 @@ void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule)
   }
 
   QTreeWidgetItem* item = new QTreeWidgetItem(root);
+  m_scannerRuleMap[item] = rule;
+  m_rulesetViewMap[item] = view;
+
   item->setText(0, rule->identifier.c_str());
+
+  if (view->hasName()) {
+    item->setText(1, view->name().c_str());
+  } else {
+    item->setText(1, view->file().c_str());
+  }
 
   if (root->childCount() == 1) {
     root->setText(1, tr("1 match"));
@@ -163,6 +179,27 @@ void MainWindow::handleEditRulesMenu()
 void MainWindow::handleAboutMenu()
 {
   onRequestAboutWindowOpen();
+}
+
+void MainWindow::treeItemSelectionChanged()
+{
+  QList<QTreeWidgetItem *> items = m_ui.tree->selectedItems();
+
+  if (!items.size()) {
+    return;
+  }
+
+  QTreeWidgetItem* selectedItem = items[0];
+  if (m_targetMap.find(selectedItem) != m_targetMap.end()) {
+    std::string target = m_targetMap[selectedItem];
+    m_matchPanel->hide();
+    m_targetPanel->show(target);
+  } else {
+    ScannerRule::Ref rule = m_scannerRuleMap[selectedItem];
+    RulesetView::Ref view = m_rulesetViewMap[selectedItem];
+    m_targetPanel->hide();
+    m_matchPanel->show(rule, view);
+  }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)

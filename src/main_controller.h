@@ -23,7 +23,7 @@ private:
   void handleChangeTargets(const std::vector<std::string>& files);
   void handleChangeRuleset(RulesetView::Ref ruleset);
 
-  void handleScanResult(const std::string& target, ScannerRule::Ref rule);
+  void handleScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view);
   void handleScanComplete(const std::string& error);
   void handleRulesUpdated();
 

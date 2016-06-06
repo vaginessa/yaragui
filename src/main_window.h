@@ -2,6 +2,8 @@
 #define __MAIN_WINDOW_H__
 
 #include "ui_main_window.h"
+#include "target_panel.h"
+#include "match_panel.h"
 #include "ruleset_view.h"
 #include "scanner_rule.h"
 #include <boost/signals2.hpp>
@@ -22,9 +24,9 @@ public:
   boost::signals2::signal<void ()> onRequestAboutWindowOpen;
 
   void setRules(const std::vector<RulesetView::Ref>& rules);
-  void addScanResult(const std::string& target, ScannerRule::Ref rule);
+  void addScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view);
 
-public slots:
+private slots:
 
   void handleSelectRuleAllFromMenu();
   void handleSelectRuleFromMenu(int rule);
@@ -33,6 +35,7 @@ public slots:
   void handleRuleFileBrowse();
   void handleEditRulesMenu();
   void handleAboutMenu();
+  void treeItemSelectionChanged();
 
 private:
 
@@ -40,6 +43,8 @@ private:
   void dropEvent(QDropEvent* event);
 
   Ui::MainWindow m_ui;
+  TargetPanel* m_targetPanel;
+  MatchPanel* m_matchPanel;
   QSignalMapper* m_signalMapper;
 
   QFileIconProvider m_iconProvider;
@@ -47,6 +52,9 @@ private:
   std::vector<RulesetView::Ref> m_rules;
 
   std::map<std::string, QTreeWidgetItem*> m_treeItems;
+  std::map<QTreeWidgetItem*, std::string> m_targetMap;
+  std::map<QTreeWidgetItem*, ScannerRule::Ref> m_scannerRuleMap;
+  std::map<QTreeWidgetItem*, RulesetView::Ref> m_rulesetViewMap;
 
 };
 

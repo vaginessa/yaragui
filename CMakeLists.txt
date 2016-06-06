@@ -30,6 +30,8 @@ set(Sources
   src/scanner.cpp
   src/scanner_rule.cpp
   src/main_window.cpp
+  src/target_panel.cpp
+  src/match_panel.cpp
   src/rule_window.cpp
   src/compile_window.cpp
   src/about_window.cpp
@@ -38,6 +40,8 @@ set(Sources
 QT5_WRAP_CPP(Sources
   src/asio_events.h
   src/main_window.h
+  src/target_panel.h
+  src/match_panel.h
   src/rule_window.h
   src/compile_window.h
   src/about_window.h
@@ -45,6 +49,8 @@ QT5_WRAP_CPP(Sources
 
 QT5_WRAP_UI(Sources
   src/ui/main_window.ui
+  src/ui/target_panel.ui
+  src/ui/match_panel.ui
   src/ui/rule_window.ui
   src/ui/compile_window.ui
   src/ui/about_window.ui

@@ -20,7 +20,7 @@ public:
   RulesetManager(boost::asio::io_service& io, boost::shared_ptr<Settings> settings);
 
   boost::signals2::signal<void ()> onRulesUpdated;
-  boost::signals2::signal<void (const std::string& target, ScannerRule::Ref rule)> onScanResult;
+  boost::signals2::signal<void (const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view)> onScanResult;
   boost::signals2::signal<void (const std::string& error)> onScanComplete;
 
   void scan(const std::string& target, RulesetView::Ref view);

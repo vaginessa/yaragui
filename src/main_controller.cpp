@@ -76,7 +76,14 @@ void MainController::handleRuleWindowSave(const std::vector<RulesetView::Ref>& r
 
 void MainController::handleRuleWindowCompile(RulesetView::Ref view)
 {
-  m_compileWindows.push_back(boost::make_shared<CompileWindow>(view));
+  CompileWindow::Ref compileWindow = boost::make_shared<CompileWindow>(view);
+  compileWindow->onRecompileRule.connect(boost::bind(&MainController::handleCompileWindowRecompile, this, _1));
+  m_compileWindows.push_back(compileWindow);
+  m_rm->compile(view);
+}
+
+void MainController::handleCompileWindowRecompile(RulesetView::Ref view)
+{
   m_rm->compile(view);
 }
 

@@ -31,6 +31,7 @@ private:
   void handleRuleWindowSave(const std::vector<RulesetView::Ref>& rules);
   void handleRuleWindowCompile(RulesetView::Ref view);
 
+  void handleCompileWindowRecompile(RulesetView::Ref view);
   void handleAboutWindowOpen();
 
   void scan();

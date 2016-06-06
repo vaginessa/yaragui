@@ -3,6 +3,7 @@
 
 #include "ui_compile_window.h"
 #include "ruleset_view.h"
+#include <boost/signals2.hpp>
 
 class CompileWindow : public QMainWindow
 {
@@ -14,13 +15,18 @@ public:
 
   CompileWindow(RulesetView::Ref rule);
 
+  boost::signals2::signal<void (RulesetView::Ref rule)> onRecompileRule;
+
   RulesetView::Ref rule();
   void setRule(RulesetView::Ref rule);
+
+public slots:
+
+  void handleCompileClicked();
 
 private:
 
   Ui::CompileWindow m_ui;
-
   RulesetView::Ref m_rule;
 
 };

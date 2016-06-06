@@ -126,7 +126,7 @@ void MainWindow::handleSelectRuleFromMenu(int rule)
 
 void MainWindow::handleTargetFileBrowse()
 {
-  QString file = QFileDialog::getOpenFileName(this, "Select Target File", QString(), "All Files (*.*)");
+  QString file = QFileDialog::getOpenFileName(this, "Select Target File", QString(), "All Files (*)");
   if (!file.isEmpty()) {
     m_ui.targetPath->setText(file);
     std::vector<std::string> targets;

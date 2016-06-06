@@ -174,6 +174,7 @@ void Scanner::threadRulesLoad(const std::string& file, RulesLoadCallback callbac
     result->rules = 0;
     result->error = yaraErrorToString(loadResult);
     m_caller.post(boost::bind(callback, result));
+    return;
   }
 
   m_caller.post(boost::bind(callback, result)); /* success */

@@ -1,5 +1,6 @@
 #include "main_controller.h"
 #include <boost/make_shared.hpp>
+#include <boost/foreach.hpp>
 
 MainController::MainController(int argc, char* argv[], boost::asio::io_service& io) : m_io(io), m_haveRuleset(false)
 {
@@ -46,7 +47,13 @@ void MainController::handleScanComplete(const std::string& error)
 
 void MainController::handleRulesUpdated()
 {
-  m_mainWindow->setRules(m_rm->getRules());
+  std::vector<RulesetView::Ref> rules = m_rm->getRules();
+  m_mainWindow->setRules(rules);
+
+  /* if any compile windows are open, reload compiler errors .etc */
+  BOOST_FOREACH(RulesetView::Ref rule, rules) {
+    updateCompileWindows(rule);
+  }
 }
 
 void MainController::handleRequestRuleWindowOpen()
@@ -69,7 +76,7 @@ void MainController::handleRuleWindowSave(const std::vector<RulesetView::Ref>& r
 
 void MainController::handleRuleWindowCompile(RulesetView::Ref view)
 {
-  m_compileWindow = boost::make_shared<CompileWindow>(view);
+  m_compileWindows.push_back(boost::make_shared<CompileWindow>(view));
   m_rm->compile(view);
 }
 
@@ -87,5 +94,25 @@ void MainController::scan()
 {
   if (!m_targets.empty() && m_haveRuleset) {
     m_rm->scan(m_targets, m_ruleset);
+  }
+}
+
+void MainController::updateCompileWindows(const RulesetView::Ref& rule)
+{
+  /* clean any dead windows */
+  std::list<CompileWindow::Ref>::iterator i = m_compileWindows.begin();
+  while (i != m_compileWindows.end()) {
+    if (!(*i)->isVisible()) {
+      i = m_compileWindows.erase(i);
+    } else {
+      i++;
+    }
+  }
+
+  /* update any windows matching this rule */
+  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
+    if (rule->file() == window->rule()->file()) {
+      window->setRule(rule);
+    }
   }
 }

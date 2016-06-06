@@ -108,7 +108,7 @@ void Scanner::threadRulesCompile(const std::string& file, const std::string& ns,
     return;
   }
 
-  yr_compiler_set_callback(compiler, yaraCompilerCallback, &result->compilerMessages);
+  yr_compiler_set_callback(compiler, yaraCompilerCallback, &result);
   int errorCount = yr_compiler_add_file(compiler, fd, ns.c_str(), file.c_str());
   fclose(fd);
 
@@ -245,10 +245,22 @@ int Scanner::yaraScanCallback(int message, void* messageData, void* userData)
 
 void Scanner::yaraCompilerCallback(int errorLevel, const char* fileName, int lineNumber, const char* message, void* userData)
 {
-  std::string& result = *(std::string*)userData;
+  CompileResult::Ref result = *(CompileResult::Ref *)userData;
+
+  std::string severity;
+  switch (errorLevel) {
+  case YARA_ERROR_LEVEL_WARNING:
+    severity = "warning";
+    break;
+  case YARA_ERROR_LEVEL_ERROR:
+  default:
+    severity = "error";
+    break;
+  }
+
   std::stringstream ss;
-  ss << fileName << "(" << lineNumber << "): error: " << message << std::endl;
-  result += ss.str();
+  ss << result->file << "(" << lineNumber << "): " << severity << ": " << message << std::endl;
+  result->compilerMessages += ss.str();
 }
 
 std::string Scanner::yaraErrorToString(const int code)

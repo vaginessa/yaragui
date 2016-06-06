@@ -85,9 +85,11 @@ void RulesetManager::handleRuleCompile(Scanner::CompileResult::Ref compileResult
 {
   Ruleset::Ref ruleset = m_queueRules.front();
 
+  /* always store the compiler messages, even if it compiled, so we can see any warnings */
+  ruleset->setCompilerMessages(compileResult->compilerMessages);
+
   if (!compileResult->rules) {
-    /* this rule failed to compile. store the error and continue to the next rule */
-    ruleset->setCompilerMessages(compileResult->compilerMessages);
+    /* this rule failed to compile, continue to the next rule */
     ruleset->setHash(std::string()); /* don't try to load from cache next time */
     m_queueRules.pop_front();
     compileNextRule();

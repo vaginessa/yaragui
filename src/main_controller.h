@@ -34,6 +34,7 @@ private:
   void handleAboutWindowOpen();
 
   void scan();
+  void updateCompileWindows(const RulesetView::Ref& rule);
 
   boost::asio::io_service& m_io;
   boost::shared_ptr<Settings> m_settings;
@@ -42,7 +43,7 @@ private:
   boost::shared_ptr<MainWindow> m_mainWindow;
   boost::shared_ptr<RuleWindow> m_ruleWindow;
   boost::shared_ptr<AboutWindow> m_aboutWindow;
-  boost::shared_ptr<CompileWindow> m_compileWindow;
+  std::list<CompileWindow::Ref> m_compileWindows;
 
   std::vector<std::string> m_targets;
   RulesetView::Ref m_ruleset;

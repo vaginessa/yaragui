@@ -8,6 +8,7 @@
 #include "scanner_rule.h"
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
+#include <boost/atomic.hpp>
 #include <yara/types.h>
 #include <yara/compiler.h>
 

@@ -7,7 +7,7 @@
 #include <QtGui/QDropEvent>
 #include <QtCore/QMimeData>
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
 {
   m_ui.setupUi(this);
   setAcceptDrops(true); /* enable drag and drop */

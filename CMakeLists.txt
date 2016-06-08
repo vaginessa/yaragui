@@ -35,6 +35,7 @@ set(Sources
   src/rule_window.cpp
   src/compile_window.cpp
   src/about_window.cpp
+  src/gfx_renderer.cpp
 )
 
 QT5_WRAP_CPP(Sources

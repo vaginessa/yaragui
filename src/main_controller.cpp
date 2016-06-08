@@ -11,7 +11,7 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_rm->onScanComplete.connect(boost::bind(&MainController::handleScanComplete, this, _1));
   m_rm->onRulesUpdated.connect(boost::bind(&MainController::handleRulesUpdated, this));
 
-  m_mainWindow = boost::make_shared<MainWindow>();
+  m_mainWindow = boost::make_shared<MainWindow>(boost::ref(io));
   m_mainWindow->onChangeTargets.connect(boost::bind(&MainController::handleChangeTargets, this, _1));
   m_mainWindow->onChangeRuleset.connect(boost::bind(&MainController::handleChangeRuleset, this, _1));
   m_mainWindow->onRequestRuleWindowOpen.connect(boost::bind(&MainController::handleRequestRuleWindowOpen, this));
@@ -94,7 +94,7 @@ void MainController::handleAboutWindowOpen()
     return;
   }
 
-  m_aboutWindow = boost::make_shared<AboutWindow>();
+  m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io));
 }
 
 void MainController::scan()

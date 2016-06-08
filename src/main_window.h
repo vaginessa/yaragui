@@ -7,6 +7,7 @@
 #include "ruleset_view.h"
 #include "scanner_rule.h"
 #include <boost/signals2.hpp>
+#include <boost/asio/io_service.hpp>
 #include <QtCore/QSignalMapper>
 #include <QtWidgets/QFileIconProvider>
 
@@ -16,7 +17,7 @@ class MainWindow : public QMainWindow
 
 public:
 
-  MainWindow();
+  MainWindow(boost::asio::io_service& io);
 
   boost::signals2::signal<void (const std::vector<std::string>& files)> onChangeTargets;
   boost::signals2::signal<void (RulesetView::Ref ruleset)> onChangeRuleset;
@@ -41,6 +42,8 @@ private:
 
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
+
+  boost::asio::io_service& m_io;
 
   Ui::MainWindow m_ui;
   TargetPanel* m_targetPanel;

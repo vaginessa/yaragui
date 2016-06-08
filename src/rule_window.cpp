@@ -201,7 +201,7 @@ boost::optional<int> RuleWindow::selectedItemIndex()
   if (rules.size() != 1) {
     return boost::optional<int>();
   }
-  for (int i = 0; i < m_rules.size(); ++i) {
+  for (size_t i = 0; i < m_rules.size(); ++i) {
     if (m_rules[i]->file() == rules[0]->file()) {
       return boost::optional<int>(i);
     }

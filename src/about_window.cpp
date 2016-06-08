@@ -1,6 +1,9 @@
 #include "about_window.h"
+#include <boost/version.hpp>
+#include <yara.h>
 #include <QImage>
 #include <QPixmap>
+#include <QPainter>
 
 using namespace GfxMath;
 
@@ -10,6 +13,11 @@ AboutWindow::AboutWindow(boost::asio::io_service& io)
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::displayFrame, this, _1));
   m_ui.setupUi(this);
   m_gfxRenderer->render(320, 100, 1000, boost::make_shared<Shader>());
+
+  m_ui.ver->setText("gui 0.1");
+  m_ui.yaraver->setText(QString("libyara ") + YR_VERSION);
+  m_ui.qtver->setText(QString("qt ") + qVersion());
+  m_ui.boostver->setText(QString("boost ") + BOOST_LIB_VERSION);
 }
 
 void AboutWindow::closeEvent(QCloseEvent *event)
@@ -22,7 +30,14 @@ void AboutWindow::displayFrame(GfxRenderer::Frame::Ref frame)
 {
   std::cout << "Got frame" << std::endl;
   QImage image((uchar *)&frame->pixels[0], frame->width, frame->height, QImage::Format_RGB888);
-  m_ui.gfx->setPixmap(QPixmap::fromImage(image));
+  QPixmap pixmap = QPixmap::fromImage(image);
+  QPainter painter(&pixmap);
+  painter.setRenderHint(QPainter::TextAntialiasing, true);
+  painter.setFont(QFont("Courier New"));
+  QPen pen(QColor(255, 255, 255));
+  painter.setPen(pen);
+  painter.drawText(QPoint(220, 94), "dila/regroup");
+  m_ui.gfx->setPixmap(pixmap);
   if (m_gfxRenderer) {
     show();
   }
@@ -46,9 +61,9 @@ float trace(vec3 o, vec3 r)
 
 GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& uv, const float time)
 {
-  vec3 r = vec3(uv, 1.0);
+  vec3 r = normalize(vec3(uv, 1.0));
 
-  vec3 o = vec3(0.0, 0.0, -3.0);
+  vec3 o = vec3(sin(time*100.0) * 4.0, 0.0, -3.0);
 
   float t = trace(o, r);
 

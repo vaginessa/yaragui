@@ -26,7 +26,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="ver">
       <property name="text">
        <string>YARAGUI_VERSION</string>
       </property>
@@ -36,7 +36,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="yaraver">
       <property name="text">
        <string>YARA_VERSION</string>
       </property>
@@ -46,9 +46,9 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="boostver">
       <property name="text">
-       <string>QT_VERSION</string>
+       <string>BOOST_VERSION</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -56,9 +56,9 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_4">
+     <widget class="QLabel" name="qtver">
       <property name="text">
-       <string>BOOST_VERSION</string>
+       <string>QT_VERSION</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

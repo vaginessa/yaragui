@@ -3,6 +3,7 @@
 
 #include "ui_about_window.h"
 #include "gfx_renderer.h"
+#include <QTimer>
 
 class AboutWindow : public QMainWindow
 {
@@ -16,7 +17,13 @@ private:
 
   void closeEvent(QCloseEvent *event);
 
-  void displayFrame(GfxRenderer::Frame::Ref frame);
+  void handleFrameRendered(GfxRenderer::Frame::Ref frame);
+
+private slots:
+
+  void handleFrameFlip();
+
+private:
 
   class Shader : public GfxRenderer::Shader
   {
@@ -28,6 +35,9 @@ private:
   Ui::AboutWindow m_ui;
 
   GfxRenderer::Ref m_gfxRenderer;
+  std::vector<QPixmap> m_frames;
+  QTimer* m_player;
+  size_t m_frameIndex;
 
 };
 

@@ -9,10 +9,11 @@ using namespace GfxMath;
 
 AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
 {
+  m_ui.setupUi(this);
+  setWindowIcon(QIcon(":/glyphicons-196-info-sign.png"));
+
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_ui.setupUi(this);
-
   m_frames = std::vector<QPixmap>(25 * 2);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 

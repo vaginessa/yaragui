@@ -3,6 +3,7 @@
 CompileWindow::CompileWindow(RulesetView::Ref rule)
 {
   m_ui.setupUi(this);
+  setWindowIcon(QIcon(":/glyphicons-137-cogwheel.png"));
   connect(m_ui.compileButton, SIGNAL(clicked()), this, SLOT(handleCompileClicked()));
   connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(close()));
   setRule(rule);

@@ -4,6 +4,7 @@
 RuleWindow::RuleWindow()
 {
   m_ui.setupUi(this);
+  setWindowIcon(QIcon(":/glyphicons-137-cogwheel.png"));
 
   connect(m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(handleButtonClicked(QAbstractButton*)));
 

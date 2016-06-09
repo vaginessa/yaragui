@@ -16,14 +16,16 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
   m_ui.targetButton->setMenu(menu);
 
   QAction* scanDirectory = menu->addAction("Scan &Directory");
+  scanDirectory->setIcon(QIcon(":/glyphicons-441-folder-closed.png"));
   connect(scanDirectory, SIGNAL(triggered()), this, SLOT(handleTargetDirectoryBrowse()));
 
   menu->addSeparator();
   QAction* about = menu->addAction("&About");
+  about->setIcon(QIcon(":/glyphicons-196-info-sign.png"));
   connect(about, SIGNAL(triggered()), this, SLOT(handleAboutMenu()));
 
-  m_ui.targetButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
-  m_ui.ruleButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
+  m_ui.targetButton->setIcon(QIcon(":/glyphicons-145-folder-open.png"));
+  m_ui.ruleButton->setIcon(QIcon(":/glyphicons-145-folder-open.png"));
 
   connect(m_ui.targetButton, SIGNAL(released()), this, SLOT(handleTargetFileBrowse()));
   connect(m_ui.ruleButton, SIGNAL(released()), this, SLOT(handleRuleFileBrowse()));
@@ -51,6 +53,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
   m_ui.ruleButton->setMenu(menu);
 
   QAction* allRules = menu->addAction("&All Rules");
+  allRules->setIcon(QIcon(":/glyphicons-320-sort.png"));
   connect(allRules, SIGNAL(triggered()), this, SLOT(handleSelectRuleAllFromMenu()));
 
   if (rules.empty()) {
@@ -69,6 +72,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
     } else {
       action = menu->addAction(rules[i]->file().c_str());
     }
+    action->setIcon(QIcon(":/glyphicons-319-more-items.png"));
     connect(action, SIGNAL(triggered()), m_signalMapper, SLOT(map()));
     m_signalMapper->setMapping(action, int(i));
   }
@@ -78,6 +82,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
   }
 
   QAction* configure = menu->addAction("&Configure");
+  configure->setIcon(QIcon(":/glyphicons-137-cogwheel.png"));
   connect(configure, SIGNAL(triggered()), this, SLOT(handleEditRulesMenu()));
 }
 

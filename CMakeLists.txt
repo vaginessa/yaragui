@@ -57,6 +57,10 @@ QT5_WRAP_UI(Sources
   src/ui/about_window.ui
 )
 
+QT5_ADD_RESOURCES(Sources
+  res/resources.qrc
+)
+
 set(Libraries
   ${Qt5Widgets_LIBRARIES}
   boost_system

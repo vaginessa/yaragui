@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>glyphicons-137-cogwheel.png</file>
+        <file>glyphicons-145-folder-open.png</file>
+        <file>glyphicons-196-info-sign.png</file>
+        <file>glyphicons-319-more-items.png</file>
+        <file>glyphicons-320-sort.png</file>
+        <file>glyphicons-441-folder-closed.png</file>
+    </qresource>
+</RCC>

@@ -7,6 +7,12 @@
 #include <cstring>
 #include <cstdio>
 #include <assert.h>
+#include <algorithm>
+
+#ifdef WIN32
+#undef min
+#undef max
+#endif
 
 namespace GfxMath {
 

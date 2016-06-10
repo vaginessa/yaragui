@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#include <unistd.h>
 #include <assert.h>
 
 namespace GfxMath {

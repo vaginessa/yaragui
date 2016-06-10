@@ -6,5 +6,12 @@
         <file>glyphicons-319-more-items.png</file>
         <file>glyphicons-320-sort.png</file>
         <file>glyphicons-441-folder-closed.png</file>
+        <file>glyphicons-82-refresh.png</file>
+        <file>glyphicons-200-ban-circle.png</file>
+        <file>glyphicons-207-ok.png</file>
+        <file>glyphicons-208-remove.png</file>
+        <file>glyphicons-213-arrow-down.png</file>
+        <file>glyphicons-214-arrow-up.png</file>
+        <file>yaragui.png</file>
     </qresource>
 </RCC>

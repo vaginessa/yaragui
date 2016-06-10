@@ -1,5 +1,6 @@
 #include "rule_window.h"
 #include <boost/foreach.hpp>
+#include <QtWidgets/QLabel>
 
 RuleWindow::RuleWindow()
 {
@@ -21,20 +22,29 @@ RuleWindow::RuleWindow()
   m_ui.table->setContextMenuPolicy(Qt::ActionsContextMenu);
 
   m_compileButton = new QAction("&Compile", this);
+  m_compileButton->setIcon(QIcon(":/glyphicons-82-refresh.png"));
   connect(m_compileButton, SIGNAL(triggered()), this, SLOT(handleCompileClicked()));
   m_ui.table->addAction(m_compileButton);
 
   m_moveUpButton = new QAction("Move &Up", this);
+  m_moveUpButton->setIcon(QIcon(":/glyphicons-214-arrow-up.png"));
   connect(m_moveUpButton, SIGNAL(triggered()), this, SLOT(handleMoveUpClicked()));
   m_ui.table->addAction(m_moveUpButton);
 
   m_moveDownButton = new QAction("Move &Down", this);
+  m_moveDownButton->setIcon(QIcon(":/glyphicons-213-arrow-down.png"));
   connect(m_moveDownButton, SIGNAL(triggered()), this, SLOT(handleMoveDownClicked()));
   m_ui.table->addAction(m_moveDownButton);
 
   m_removeButton = new QAction("&Remove", this);
+  m_removeButton->setIcon(QIcon(":/glyphicons-200-ban-circle.png"));
   connect(m_removeButton, SIGNAL(triggered()), this, SLOT(handleRemoveClicked()));
   m_ui.table->addAction(m_removeButton);
+
+  m_iconYes = QPixmap(":/glyphicons-207-ok.png");
+  m_iconYes = m_iconYes.scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  m_iconNo = QPixmap(":/glyphicons-208-remove.png");
+  m_iconNo = m_iconNo.scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
   show();
 }
@@ -177,10 +187,14 @@ void RuleWindow::rulesToView(const std::vector<RulesetView::Ref>& rules)
     itemFile->setFlags(itemFile->flags() & ~Qt::ItemIsEditable);
     m_ui.table->setItem(int(i), 1, itemFile);
 
-    QString compiledString = rules[i]->isCompiled() ? tr("Yes") : tr("No");
-    QTableWidgetItem* itemCompiled = new QTableWidgetItem(compiledString);
-    itemCompiled->setFlags(itemCompiled->flags() & ~Qt::ItemIsEditable);
-    m_ui.table->setItem(int(i), 2, itemCompiled);
+    QLabel* itemCompiled = new QLabel(m_ui.table);
+    itemCompiled->setAlignment(Qt::AlignCenter);
+    if (rules[i]->isCompiled()) {
+      itemCompiled->setPixmap(m_iconYes);
+    } else {
+      itemCompiled->setPixmap(m_iconNo);
+    }
+    m_ui.table->setCellWidget(int(i), 2, itemCompiled);
   }
 }
 

@@ -11,6 +11,7 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
 {
   m_ui.setupUi(this);
   setAcceptDrops(true); /* enable drag and drop */
+  setWindowIcon(QIcon(":/yaragui.png"));
 
   QMenu* menu = new QMenu(this);
   m_ui.targetButton->setMenu(menu);

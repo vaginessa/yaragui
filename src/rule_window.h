@@ -46,6 +46,9 @@ private:
   QAction* m_moveDownButton;
   QAction* m_removeButton;
 
+  QPixmap m_iconYes;
+  QPixmap m_iconNo;
+
 };
 
 #endif // __RULE_WINDOW_H__

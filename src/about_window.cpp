@@ -14,18 +14,25 @@ AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_frames = std::vector<QPixmap>(25 * 2);
+  m_frames = std::vector<QPixmap>(25 * 5);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 
   m_player = new QTimer(this);
   connect(m_player, SIGNAL(timeout()), this, SLOT(handleFrameFlip()));
 
-  m_ui.ver->setText("gui 0.1");
-  m_ui.yaraver->setText(QString("libyara ") + YR_VERSION);
-  m_ui.qtver->setText(QString("qt ") + qVersion());
-  m_ui.boostver->setText(QString("boost ") + BOOST_LIB_VERSION);
-
-  show();
+  std::stringstream info;
+  info << "<p align=\"center\">";
+  info << "<b>YARA GUI 0.1</b><br>";
+  info << "Bult on " << __DATE__ << " at " << __TIME__ << "<br><br>";
+  info << "Yara version " << YR_VERSION << "<br>";
+  info << "Qt version " << qVersion() << "<br>";
+  info << "Boost version " << BOOST_LIB_VERSION << "<br>";
+  info << "Icons by glyphicons.com<br><br>";
+  info << "Written in C++ by dila<br>";
+  info << "For updates see:<br>";
+  info << "<a href=\"http://www.movss.com/~rich/yaragui/\">http://www.movss.com/~rich/yaragui/</a>";
+  info << "</p>";
+  m_ui.info->setHtml(info.str().c_str());
 }
 
 void AboutWindow::closeEvent(QCloseEvent *event)
@@ -35,6 +42,14 @@ void AboutWindow::closeEvent(QCloseEvent *event)
   QMainWindow::closeEvent(event);
 }
 
+QFont AboutWindow::getFont()
+{
+  QFont font("Courier New");
+  font.setWeight(QFont::DemiBold);
+  font.setPixelSize(32);
+  return font;
+}
+
 void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
 {
   QImage image((uchar *)&frame->pixels[0], frame->width, frame->height, QImage::Format_RGB888);
@@ -42,20 +57,22 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
 
   QPainter painter(&pixmap);
   painter.setRenderHint(QPainter::TextAntialiasing, true);
-  painter.setFont(QFont("Courier New"));
+  painter.setFont(getFont());
   QPen pen(QColor(255, 255, 255));
   painter.setPen(pen);
-  painter.drawText(QPoint(220, 94), "dila/regroup");
+  painter.drawText(pixmap.rect(), Qt::AlignCenter, "{} YARA GUI");
+
+  if (frame->frameNumber == 0) {
+    m_ui.gfx->setPixmap(pixmap);
+    //setFixedSize(width(), height());
+    setFixedWidth(width());
+    show();
+  }
 
   if (m_frames.size() > frame->frameNumber) {
     m_frames[frame->frameNumber] = pixmap;
     m_frameIndex++;
   }
-
-  std::stringstream ss;
-  int progress = m_frameIndex / double(m_frames.size()) * 100;
-  ss << "Loading " << progress << "%...";
-  m_ui.gfx->setText(ss.str().c_str());
 
   if (m_frameIndex == m_frames.size()) {
     m_player->start(1000 / 25);
@@ -69,7 +86,6 @@ void AboutWindow::handleFrameFlip()
   }
   m_frameIndex = (m_frameIndex + 1) % m_frames.size();
   m_ui.gfx->setPixmap(m_frames[m_frameIndex]);
-  m_ui.gfx->setText("");
 }
 
 mat3 xrot(float t)
@@ -100,39 +116,85 @@ float sdBox(vec3 p, vec3 b)
          length(max(d,vec3(0.0)));
 }
 
+float tube( vec3 p, float b )
+{
+  return length(p.permute(0,1)) - b;
+}
+
 float map(vec3 p)
 {
-  return sdBox(p, vec3(1.0));
+	vec3 q = (fract(p/2.5) - 0.5) * 2.5;
+  float tr = 0.25;
+  float d = tube(q, tr);
+  d = min(d, tube(q.permute(1,2,0), tr));
+  d = min(d, tube(q.permute(0,2,1), tr));
+  d = min(d, sdBox(q, vec3(0.65)));
+  return d;
+}
+
+vec3 normal(vec3 p)
+{
+	vec3 o = vec3(0.1, 0.0, 0.0);
+  return normalize(vec3(map(p+o.permute(0,1,1))/*xyy*/ - map(p-o.permute(0,1,1))/*xyy*/,
+                        map(p+o.permute(1,0,1))/*yxy*/ - map(p-o.permute(1,0,1))/*yxy*/,
+                        map(p+o.permute(1,1,0))/*yyx*/ - map(p-o.permute(1,1,0))/*yyx*/));
 }
 
 float trace(vec3 o, vec3 r)
 {
   float t = 0.0;
   for (int i = 0; i < 16; ++i) {
-    vec3 p = o + r * t;
-    float d = map(p);
-    t += d;
+      vec3 p = o + r * t;
+      float d = map(p);
+      t += d;
   }
   return t;
 }
 
-GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& uv, const float time)
+GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& fragCoord, const GfxMath::vec2& fragRes, const float time)
 {
-  vec3 r = normalize(vec3(uv, 1.0));
+  vec2 uv = fragCoord / fragRes;
+  uv = uv * 2.0 - 1.0;
+  uv[1] *= fragRes[1] / fragRes[0];
 
-  r = r * yrot(time * 6.28);
-
-  vec3 o = vec3(0.0, 0.0, -3.0);
-
-  o = o * yrot(time * 6.28);
-
+  vec3 r = normalize(vec3(uv, 0.5 - dot(uv, uv) * 0.66));
+  
+  r = r * yrot(0.5 + time * 3.14159 * 2.0);
+  r = r * zrot(time * 3.14159 * 4.0);
+  
+  vec3 o = vec3(0.0, 0.0, 5.0) * time * 4.0;
+  
   float t = trace(o, r);
+  
   vec3 w = o + r * t;
-  float fd = map(w);
+  vec3 sn = normal(w);
+  
+  vec3 s = vec3(0.5);
+  
+  vec3 lv = normalize(vec3(1.0));
+  
+  float lp = max(dot(sn, lv), 0.0);
+  vec3 lc = vec3(1.0, 0.5, 0.0);
+  
+  float lp2 = max(dot(sn, -lv), 0.0);
+  vec3 lc2 = vec3(1.0, 0.6, 0.1);
+  
+  s += lp * lc;
+  s += lp2 * lc2;
+  s *= max(dot(r, -sn), 0.0);
+  
+  vec3 ref = reflect(r, sn);
+  float spec = max(dot(lv, ref), 0.0);
+  float spec2 = max(dot(-lv, ref), 0.0);
+  
+  spec = pow(spec, 16.0);
+  spec2 = pow(spec2, 16.0);
+  
+  float fog = 1.0 / (1.0 + t * t * 0.03);
+  
+  vec3 fc = s;
+  fc += spec * lc;
+  fc += spec2 * lc2;
 
-  float fog = 1.0 / (1.0 + t * t * 0.1 + fd * 100.0);
-
-  vec3 fc = vec3(fog);
-
-  return fc;
+  return fc * fog;
 }

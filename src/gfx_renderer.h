@@ -33,13 +33,10 @@ public:
     typedef boost::shared_ptr<Shader> Ref;
     virtual ~Shader() {}
     Shader() {}
-    virtual GfxMath::vec3 shade(const GfxMath::vec2& uv, const float time) = 0;
+    virtual GfxMath::vec3 shade(const GfxMath::vec2& fragCoord, const GfxMath::vec2& fragRes, const float time) = 0;
   };
 
-  bool idle() const {return m_frameCounter >= m_numFrames;}
-
   typedef boost::function<void (Frame::Ref frame)> FrameCallback;
-
   void setFrameCallback(FrameCallback callback) {m_frameCallback = callback;}
 
   void render(const int width, const int height, const int numFrames, Shader::Ref shader);

@@ -17,6 +17,8 @@ private:
 
   void closeEvent(QCloseEvent *event);
 
+  QFont getFont();
+
   void handleFrameRendered(GfxRenderer::Frame::Ref frame);
 
 private slots:
@@ -28,7 +30,7 @@ private:
   class Shader : public GfxRenderer::Shader
   {
   public:
-    virtual GfxMath::vec3 shade(const GfxMath::vec2& uv, const float time);
+    virtual GfxMath::vec3 shade(const GfxMath::vec2& fragCoord, const GfxMath::vec2& fragRes, const float time);
   };
 
 

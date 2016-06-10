@@ -138,6 +138,14 @@ public:
     }
     return r;
   }
+
+  Vector<T,N> operator /(const Vector<T,N>& rhs) const {
+    Vector<T,N> r;
+    for (int i = 0; i < N; ++i) {
+      r[i] = m[i] / rhs[i];
+    }
+    return r;
+  }
   
   Vector<T,N>& operator /=(const T& rhs) {
     *this = *this / rhs;

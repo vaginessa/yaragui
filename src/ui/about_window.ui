@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>339</width>
-    <height>226</height>
+    <width>338</width>
+    <height>222</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,12 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QLabel" name="gfx">
+      <property name="minimumSize">
+       <size>
+        <width>320</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -26,42 +32,9 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="ver">
-      <property name="text">
-       <string>YARAGUI_VERSION</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="yaraver">
-      <property name="text">
-       <string>YARA_VERSION</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="boostver">
-      <property name="text">
-       <string>BOOST_VERSION</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="qtver">
-      <property name="text">
-       <string>QT_VERSION</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
+     <widget class="QTextBrowser" name="info">
+      <property name="openExternalLinks">
+       <bool>true</bool>
       </property>
      </widget>
     </item>

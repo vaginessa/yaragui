@@ -56,10 +56,6 @@ void GfxRenderer::threadRender(ThreadData::Ref td)
   while (!m_shutdownRequest) {
     int frameNumber = m_frameCounter++;
     if (frameNumber >= m_numFrames) {
-      if (frameNumber == m_numFrames) {
-        /* only one thread from the pool will get here */
-        //m_io.post(boost::bind(&GfxRenderer::relayAllFramesComplete, this));
-      }
       break;
     }
 
@@ -71,14 +67,13 @@ void GfxRenderer::threadRender(ThreadData::Ref td)
     frame->pixels = std::vector<char>(m_width * m_height * 3);
     for (int y = 0; y < m_height; ++y) {
       for (int x = 0; x < m_width; ++x) {
-        float u = (2 * x + 1) / double(m_width) - 1;
-        float v = (2 * y + 1) / double(m_height) - 1;
-        u *= m_width / double(m_height);
-        GfxMath::vec3 pixel = m_shader->shade(GfxMath::vec2(u, v), time);
+        GfxMath::vec2 fragCoord(x + 0.5, y + 0.5);
+        GfxMath::vec2 fragRes(m_width, m_height);
+        GfxMath::vec3 pixel = m_shader->shade(fragCoord, fragRes, time);
         size_t pixelOffset = (y * m_width + x) * 3;
-        frame->pixels[pixelOffset] = GfxMath::clamp(pixel[0], 0.0, 1.0) * 255;
-        frame->pixels[pixelOffset+1] = GfxMath::clamp(pixel[1], 0.0, 1.0) * 255;
-        frame->pixels[pixelOffset+2] = GfxMath::clamp(pixel[2], 0.0, 1.0) * 255;
+        frame->pixels[pixelOffset] = uint8_t(GfxMath::clamp(pixel[0], 0.0, 1.0) * 255);
+        frame->pixels[pixelOffset+1] = uint8_t(GfxMath::clamp(pixel[1], 0.0, 1.0) * 255);
+        frame->pixels[pixelOffset+2] = uint8_t(GfxMath::clamp(pixel[2], 0.0, 1.0) * 255);
       }
       if (m_shutdownRequest) {
         break;

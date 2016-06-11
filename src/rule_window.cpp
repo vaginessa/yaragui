@@ -18,8 +18,8 @@ RuleWindow::RuleWindow()
   connect(m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(handleButtonClicked(QAbstractButton*)));
 
   m_ui.table->setColumnCount(3);
-  m_ui.table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-  m_ui.table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+  m_ui.table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+  m_ui.table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
   m_ui.table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
   connect(m_ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(handleItemEdit(QTableWidgetItem*)));

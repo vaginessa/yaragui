@@ -14,6 +14,7 @@ public:
   RulesetView(const std::string& file, const std::string& name, bool compiled, const std::string& compilerMessages);
 
   std::string file() const;
+  std::string fileNameOnly() const;
 
   bool isCompiled() const;
   std::string compilerMessages() const;

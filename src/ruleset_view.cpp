@@ -1,4 +1,5 @@
 #include "ruleset_view.h"
+#include <QtCore/QFileInfo>
 
 RulesetView::RulesetView(const std::string& file) : m_file(file), m_compiled(false)
 {
@@ -11,6 +12,12 @@ RulesetView::RulesetView(const std::string& file, const std::string& name, bool 
 std::string RulesetView::file() const
 {
   return m_file;
+}
+
+std::string RulesetView::fileNameOnly() const
+{
+  QFileInfo info(m_file.c_str());
+  return info.fileName().toStdString();
 }
 
 bool RulesetView::isCompiled() const

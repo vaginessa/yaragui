@@ -127,7 +127,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
     if (rules[i]->hasName()) {
       action = menu->addAction(rules[i]->name().c_str());
     } else {
-      action = menu->addAction(rules[i]->file().c_str());
+      action = menu->addAction(rules[i]->fileNameOnly().c_str());
     }
     if (!rules[i]->isCompiled()) {
       action->setEnabled(false);
@@ -177,7 +177,7 @@ void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule,
   if (view->hasName()) {
     item->setText(1, view->name().c_str());
   } else {
-    item->setText(1, view->file().c_str());
+    item->setText(1, view->fileNameOnly().c_str());
   }
 
   if (root->childCount() == 1) {

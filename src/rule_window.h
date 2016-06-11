@@ -32,6 +32,9 @@ private slots:
 
 private:
 
+  void dragEnterEvent(QDragEnterEvent* event);
+  void dropEvent(QDropEvent* event);
+
   void rulesToView(const std::vector<RulesetView::Ref>& rules);
   std::vector<RulesetView::Ref> selectedItems();
   boost::optional<int> selectedItemIndex();

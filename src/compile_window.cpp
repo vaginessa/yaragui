@@ -1,4 +1,5 @@
 #include "compile_window.h"
+#include <sstream>
 #include <QtGui/QKeyEvent>
 
 CompileWindow::CompileWindow(RulesetView::Ref rule)
@@ -20,7 +21,12 @@ void CompileWindow::setRule(RulesetView::Ref rule)
 {
   m_rule = rule;
   m_ui.rulePath->setText(rule->file().c_str());
-  m_ui.output->setText(rule->compilerMessages().c_str());
+  std::stringstream ss;
+  ss << rule->compilerMessages();
+  if (rule->isCompiled()) {
+    ss << "Rule compiled successfully." << std::endl;
+  }
+  m_ui.output->setText(ss.str().c_str());
 }
 
 void CompileWindow::handleCompileClicked()

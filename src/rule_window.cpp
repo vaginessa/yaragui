@@ -1,11 +1,18 @@
 #include "rule_window.h"
 #include <boost/foreach.hpp>
+#include <boost/make_shared.hpp>
 #include <QtWidgets/QLabel>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QDragEnterEvent>
+#include <QtGui/QDropEvent>
+#include <QtCore/QMimeData>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 RuleWindow::RuleWindow()
 {
   m_ui.setupUi(this);
+  setAcceptDrops(true); /* enable drag and drop */
   setWindowIcon(QIcon(":/yaragui.png"));
 
   connect(m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(handleButtonClicked(QAbstractButton*)));
@@ -172,6 +179,52 @@ void RuleWindow::handleRemoveClicked()
   rulesToView(newRules);
 }
 
+void RuleWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+  /* filter out non-files, like images dragged from the web browser */
+  const QMimeData* mimeData = event->mimeData();
+  if (!mimeData->hasUrls()) {
+    event->ignore();
+    return;
+  }
+
+  QList<QUrl> urls = mimeData->urls();
+  for (int i = 0; i < urls.size(); ++i) {
+    if (!urls[i].isLocalFile()) {
+      event->ignore();
+      return;
+    }
+  }
+
+  event->acceptProposedAction();
+}
+
+void RuleWindow::dropEvent(QDropEvent* event)
+{
+  const QMimeData* mimeData = event->mimeData();
+  QList<QUrl> urls = mimeData->urls();
+
+  for (int i = 0; i < urls.size(); ++i) {
+    QFileInfo fileInfo(urls[i].toLocalFile());
+    QString file = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
+    if (fileInfo.suffix() == "yar" || fileInfo.suffix() == "yara") {
+      bool duplicate = false;
+      BOOST_FOREACH(RulesetView::Ref rule, m_rules) {
+        if (rule->file() == file.toStdString()) {
+          duplicate = true;
+          break;
+        }
+      }
+      if (!duplicate) {
+        m_rules.push_back(boost::make_shared<RulesetView>(file.toStdString()));
+      }
+    }
+  }
+
+  rulesToView(m_rules);
+  event->acceptProposedAction();
+}
+
 void RuleWindow::rulesToView(const std::vector<RulesetView::Ref>& rules)
 {
   m_rules = rules;
@@ -180,17 +233,17 @@ void RuleWindow::rulesToView(const std::vector<RulesetView::Ref>& rules)
   m_ui.table->setRowCount(rules.size());
 
   QStringList headerLabels;
-  headerLabels << "Name" << "File" << "Compiled";
+  headerLabels << "File" << "Name" << "Compiled";
   m_ui.table->setHorizontalHeaderLabels(headerLabels);
 
   for (size_t i = 0; i < rules.size(); ++i) {
-    QTableWidgetItem* itemName = new QTableWidgetItem(rules[i]->name().c_str());
-    m_ui.table->setItem(int(i), 0, itemName);
-    m_names[itemName] = rules[i];
-
     QTableWidgetItem* itemFile = new QTableWidgetItem(rules[i]->file().c_str());
     itemFile->setFlags(itemFile->flags() & ~Qt::ItemIsEditable);
-    m_ui.table->setItem(int(i), 1, itemFile);
+    m_ui.table->setItem(int(i), 0, itemFile);
+
+    QTableWidgetItem* itemName = new QTableWidgetItem(rules[i]->name().c_str());
+    m_ui.table->setItem(int(i), 1, itemName);
+    m_names[itemName] = rules[i];
 
     QLabel* itemCompiled = new QLabel(m_ui.table);
     itemCompiled->setAlignment(Qt::AlignCenter);

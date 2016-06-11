@@ -1,6 +1,6 @@
 #include "ruleset_view.h"
 
-RulesetView::RulesetView(const std::string& file) : m_file(file)
+RulesetView::RulesetView(const std::string& file) : m_file(file), m_compiled(false)
 {
 }
 

@@ -21,6 +21,8 @@ private:
 
   void handleFrameRendered(GfxRenderer::Frame::Ref frame);
 
+  void keyPressEvent(QKeyEvent *event);
+
 private slots:
 
   void handleFrameFlip();
@@ -32,7 +34,6 @@ private:
   public:
     virtual GfxMath::vec3 shade(const GfxMath::vec2& fragCoord, const GfxMath::vec2& fragRes, const float time);
   };
-
 
   Ui::AboutWindow m_ui;
 

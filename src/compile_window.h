@@ -26,6 +26,8 @@ public slots:
 
 private:
 
+  void keyPressEvent(QKeyEvent *event);
+
   Ui::CompileWindow m_ui;
   RulesetView::Ref m_rule;
 

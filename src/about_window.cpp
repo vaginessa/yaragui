@@ -1,9 +1,10 @@
 #include "about_window.h"
 #include <boost/version.hpp>
 #include <yara.h>
-#include <QImage>
-#include <QPixmap>
-#include <QPainter>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QImage>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
 
 using namespace GfxMath;
 
@@ -76,6 +77,18 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
 
   if (m_frameIndex == m_frames.size()) {
     m_player->start(1000 / 25);
+  }
+}
+
+void AboutWindow::keyPressEvent(QKeyEvent *event)
+{
+  switch(event->key())
+  {
+  case Qt::Key_Escape:
+    close();
+    break;
+  default:
+    QMainWindow::keyPressEvent(event);
   }
 }
 

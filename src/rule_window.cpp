@@ -1,6 +1,7 @@
 #include "rule_window.h"
 #include <boost/foreach.hpp>
 #include <QtWidgets/QLabel>
+#include <QtGui/QKeyEvent>
 
 RuleWindow::RuleWindow()
 {
@@ -226,4 +227,16 @@ boost::optional<int> RuleWindow::selectedItemIndex()
     }
   }
   return boost::optional<int>();
+}
+
+void RuleWindow::keyPressEvent(QKeyEvent *event)
+{
+  switch(event->key())
+  {
+  case Qt::Key_Escape:
+    close();
+    break;
+  default:
+    QMainWindow::keyPressEvent(event);
+  }
 }

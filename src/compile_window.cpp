@@ -1,4 +1,5 @@
 #include "compile_window.h"
+#include <QtGui/QKeyEvent>
 
 CompileWindow::CompileWindow(RulesetView::Ref rule)
 {
@@ -25,4 +26,16 @@ void CompileWindow::setRule(RulesetView::Ref rule)
 void CompileWindow::handleCompileClicked()
 {
   onRecompileRule(m_rule);
+}
+
+void CompileWindow::keyPressEvent(QKeyEvent *event)
+{
+  switch(event->key())
+  {
+  case Qt::Key_Escape:
+    close();
+    break;
+  default:
+    QMainWindow::keyPressEvent(event);
+  }
 }

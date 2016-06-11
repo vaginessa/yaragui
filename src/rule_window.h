@@ -36,6 +36,8 @@ private:
   std::vector<RulesetView::Ref> selectedItems();
   boost::optional<int> selectedItemIndex();
 
+  void keyPressEvent(QKeyEvent *event);
+
   Ui::RuleWindow m_ui;
 
   std::vector<RulesetView::Ref> m_rules;

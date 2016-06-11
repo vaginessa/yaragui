@@ -50,6 +50,7 @@ private:
   std::vector<std::string> m_targets;
   RulesetView::Ref m_ruleset;
   bool m_haveRuleset;
+  bool m_scanning;
 
 };
 

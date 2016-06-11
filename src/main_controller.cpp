@@ -2,7 +2,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
 
-MainController::MainController(int argc, char* argv[], boost::asio::io_service& io) : m_io(io), m_haveRuleset(false)
+MainController::MainController(int argc, char* argv[], boost::asio::io_service& io) : m_io(io), m_haveRuleset(false), m_scanning(false)
 {
   m_settings = boost::make_shared<Settings>();
 
@@ -44,6 +44,10 @@ void MainController::handleScanComplete(const std::string& error)
     m_ruleWindow->setRules(m_rm->getRules());
   }
   m_mainWindow->scanEnd();
+  if (m_ruleWindow) {
+    m_ruleWindow->setEnabled(true);
+  }
+  m_scanning = false;
 }
 
 void MainController::handleRulesUpdated()
@@ -92,10 +96,9 @@ void MainController::handleAboutWindowOpen()
 {
   if (m_aboutWindow && m_aboutWindow->isVisible()) {
     m_aboutWindow->raise();
-    return;
+  } else {
+    m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io));
   }
-
-  m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io));
 }
 
 void MainController::handleUserScanAbort()
@@ -105,9 +108,13 @@ void MainController::handleUserScanAbort()
 
 void MainController::scan()
 {
-  if (!m_targets.empty() && m_haveRuleset) {
+  if (!m_targets.empty() && m_haveRuleset && !m_scanning) {
+    m_scanning = true;
     m_rm->scan(m_targets, m_ruleset);
     m_mainWindow->scanBegin();
+    if (m_ruleWindow) {
+      m_ruleWindow->setEnabled(false);
+    }
   }
 }
 

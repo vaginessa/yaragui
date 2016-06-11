@@ -9,6 +9,8 @@
 #include <boost/signals2.hpp>
 #include <boost/asio/io_service.hpp>
 #include <QtCore/QSignalMapper>
+#include <QtCore/QTimer>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QFileIconProvider>
 
 class MainWindow : public QMainWindow
@@ -21,9 +23,12 @@ public:
 
   boost::signals2::signal<void (const std::vector<std::string>& files)> onChangeTargets;
   boost::signals2::signal<void (RulesetView::Ref ruleset)> onChangeRuleset;
+  boost::signals2::signal<void ()> onScanAbort;
   boost::signals2::signal<void ()> onRequestRuleWindowOpen;
   boost::signals2::signal<void ()> onRequestAboutWindowOpen;
 
+  void scanBegin();
+  void scanEnd();
   void setRules(const std::vector<RulesetView::Ref>& rules);
   void addScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view);
 
@@ -37,6 +42,8 @@ private slots:
   void handleEditRulesMenu();
   void handleAboutMenu();
   void treeItemSelectionChanged();
+  void handleScanTimer();
+  void handleScanAbortButton();
 
 private:
 
@@ -46,9 +53,14 @@ private:
   boost::asio::io_service& m_io;
 
   Ui::MainWindow m_ui;
+  QToolButton* m_stopButton;
   TargetPanel* m_targetPanel;
   MatchPanel* m_matchPanel;
   QSignalMapper* m_signalMapper;
+
+  QTimer* m_scanTimer;
+  int m_scanPhase;
+  bool m_scanAborted;
 
   QFileIconProvider m_iconProvider;
 

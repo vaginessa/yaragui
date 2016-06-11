@@ -7,22 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>576</width>
-    <height>160</height>
+    <height>102</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="layout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>MatchPanel</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+    <widget class="QTextEdit" name="info"/>
    </item>
   </layout>
  </widget>

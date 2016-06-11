@@ -33,6 +33,7 @@ private:
 
   void handleCompileWindowRecompile(RulesetView::Ref view);
   void handleAboutWindowOpen();
+  void handleUserScanAbort();
 
   void scan();
   void updateCompileWindows(const RulesetView::Ref& rule);

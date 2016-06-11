@@ -32,8 +32,15 @@ void RulesetManager::scan(const std::vector<std::string>& targets, RulesetView::
   m_queueRules = ruleToQueue(m_activeRule, QueueAllRules); /* reload the queue for compiling */
 
   m_forceCompile = false;
+  m_scanAborted = false;
   m_binaries.clear();
   compileNextRule();
+}
+
+void RulesetManager::scanAbort()
+{
+  m_scanAborted = true;
+  m_scanner->scanStop();
 }
 
 void RulesetManager::compile(RulesetView::Ref view)
@@ -175,7 +182,7 @@ void RulesetManager::compileNextRule()
 
 void RulesetManager::scanWithCompiledRules()
 {
-  if (m_queueTargets.empty()) { /* no targets */
+  if (m_queueTargets.empty() || m_scanAborted) { /* no targets */
     freeBinaries(); /* cleanup and signal completion */
     return;
   }

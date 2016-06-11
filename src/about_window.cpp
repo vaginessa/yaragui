@@ -14,7 +14,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_frames = std::vector<QPixmap>(25 * 5);
+  m_frames = std::vector<QPixmap>(25 * 6);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 
   m_player = new QTimer(this);
@@ -24,13 +24,13 @@ AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
   info << "<p align=\"center\">";
   info << "<b>YARA GUI 0.1</b><br>";
   info << "Bult on " << __DATE__ << " at " << __TIME__ << "<br><br>";
+  info << "Written in C++ by dila<br>";
+  info << "For updates see:<br>";
+  info << "<a href=\"http://www.movss.com/~rich/yaragui/\">http://www.movss.com/~rich/yaragui/</a><br><br>";
   info << "Yara version " << YR_VERSION << "<br>";
   info << "Qt version " << qVersion() << "<br>";
   info << "Boost version " << BOOST_LIB_VERSION << "<br>";
-  info << "Icons by glyphicons.com<br><br>";
-  info << "Written in C++ by dila<br>";
-  info << "For updates see:<br>";
-  info << "<a href=\"http://www.movss.com/~rich/yaragui/\">http://www.movss.com/~rich/yaragui/</a>";
+  info << "Icons by glyphicons.com";
   info << "</p>";
   m_ui.info->setHtml(info.str().c_str());
 }
@@ -109,11 +109,9 @@ mat3 zrot(float t)
               0.0, 0.0, 1.0);
 }
 
-float sdBox(vec3 p, vec3 b)
+float udRoundBox( vec3 p, vec3 b, float r )
 {
-  vec3 d = abs(p) - b;
-  return min(max(d[0],max(d[1],d[2])),0.0) +
-         length(max(d,vec3(0.0)));
+  return length(max(abs(p)-b,vec3(0.0)))-r;
 }
 
 float tube( vec3 p, float b )
@@ -128,13 +126,13 @@ float map(vec3 p)
   float d = tube(q, tr);
   d = min(d, tube(q.permute(1,2,0), tr));
   d = min(d, tube(q.permute(0,2,1), tr));
-  d = min(d, sdBox(q, vec3(0.65)));
+  d = min(d, udRoundBox(q, vec3(0.45), 0.2));
   return d;
 }
 
 vec3 normal(vec3 p)
 {
-	vec3 o = vec3(0.1, 0.0, 0.0);
+	vec3 o = vec3(0.001, 0.0, 0.0);
   return normalize(vec3(map(p+o.permute(0,1,1))/*xyy*/ - map(p-o.permute(0,1,1))/*xyy*/,
                         map(p+o.permute(1,0,1))/*yxy*/ - map(p-o.permute(1,0,1))/*yxy*/,
                         map(p+o.permute(1,1,0))/*yyx*/ - map(p-o.permute(1,1,0))/*yyx*/));
@@ -143,7 +141,7 @@ vec3 normal(vec3 p)
 float trace(vec3 o, vec3 r)
 {
   float t = 0.0;
-  for (int i = 0; i < 16; ++i) {
+  for (int i = 0; i < 32; ++i) {
       vec3 p = o + r * t;
       float d = map(p);
       t += d;

@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>549</width>
-    <height>279</height>
+    <width>602</width>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>yara gui</string>
+   <string>YARA GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="mainLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QFrame" name="frame">
       <property name="frameShape">
@@ -88,12 +88,20 @@
      </widget>
     </item>
     <item>
-     <widget class="QTreeWidget" name="tree">
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
-       </property>
-      </column>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QTreeWidget" name="tree">
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
      </widget>
     </item>
    </layout>

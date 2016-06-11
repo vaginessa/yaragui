@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/assign.hpp>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtGui/QDragEnterEvent>
@@ -39,11 +40,51 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
   connect(m_ui.tree, SIGNAL(itemSelectionChanged()), this, SLOT(treeItemSelectionChanged()));
 
   m_targetPanel = new TargetPanel(this);
-  m_ui.mainLayout->addWidget(m_targetPanel);
+  m_ui.splitter->addWidget(m_targetPanel);
   m_matchPanel = new MatchPanel(this);
-  m_ui.mainLayout->addWidget(m_matchPanel);
+  m_ui.splitter->addWidget(m_matchPanel);
+
+  /* set up the status bar */
+  m_stopButton = new QToolButton(this);
+  connect(m_stopButton, SIGNAL(clicked()), this, SLOT(handleScanAbortButton()));
+  m_stopButton->setIcon(QIcon(":/glyphicons-176-stop.png"));
+  m_stopButton->setIconSize(QSize(16, 16));
+  m_stopButton->setFixedWidth(m_stopButton->height());
+  m_stopButton->hide();
+  m_ui.statusBar->addPermanentWidget(m_stopButton);
+  m_ui.statusBar->showMessage("Drag file into window and select rule to scan");
+
+  /* timer to control status bar animation */
+  m_scanTimer = new QTimer(this);
+  connect(m_scanTimer, SIGNAL(timeout()), this, SLOT(handleScanTimer()));
 
   show();
+}
+
+void MainWindow::scanBegin()
+{
+  m_stopButton->show();
+  m_stopButton->setEnabled(true);
+  m_scanTimer->start(1000/10);
+  m_scanAborted = false;
+  m_ui.tree->clear();
+  m_treeItems.clear();
+  m_targetMap.clear();
+  m_scannerRuleMap.clear();
+  m_rulesetViewMap.clear();
+  m_matchPanel->hide();
+  m_targetPanel->hide();
+}
+
+void MainWindow::scanEnd()
+{
+  m_scanTimer->stop();
+  m_stopButton->hide();
+  if (!m_scanAborted) {
+    m_ui.statusBar->showMessage("Scan complete.");
+  } else {
+    m_ui.statusBar->showMessage("Scan aborted.");
+  }
 }
 
 void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
@@ -206,6 +247,25 @@ void MainWindow::treeItemSelectionChanged()
     m_targetPanel->hide();
     m_matchPanel->show(rule, view);
   }
+}
+
+void MainWindow::handleScanTimer()
+{
+  std::vector<std::string> progress;
+  boost::assign::push_back(progress)("|")("/")("-")("\\");
+  m_scanPhase = (m_scanPhase + 1) % progress.size();
+  std::string message = "[" + progress[m_scanPhase] + "] ";
+  message += "Scanning...";
+  m_ui.statusBar->showMessage(message.c_str());
+}
+
+void MainWindow::handleScanAbortButton()
+{
+  m_scanTimer->stop();
+  m_ui.statusBar->showMessage("Aborting...");
+  m_stopButton->setEnabled(false);
+  m_scanAborted = true;
+  onScanAbort();
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)

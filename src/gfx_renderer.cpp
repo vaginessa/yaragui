@@ -11,7 +11,6 @@ GfxRenderer::~GfxRenderer()
     td->io.stop();
   }
   m_threads.join_all();
-  std::cout << "GfxRenderer destroyed." << std::endl;
 }
 
 GfxRenderer::GfxRenderer(boost::asio::io_service& io, size_t threadCount) : m_io(io)

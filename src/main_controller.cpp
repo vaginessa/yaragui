@@ -16,6 +16,7 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_mainWindow->onChangeRuleset.connect(boost::bind(&MainController::handleChangeRuleset, this, _1));
   m_mainWindow->onRequestRuleWindowOpen.connect(boost::bind(&MainController::handleRequestRuleWindowOpen, this));
   m_mainWindow->onRequestAboutWindowOpen.connect(boost::bind(&MainController::handleAboutWindowOpen, this));
+  m_mainWindow->onScanAbort.connect(boost::bind(&MainController::handleUserScanAbort, this));
 
   m_mainWindow->setRules(m_rm->getRules());
 }
@@ -23,7 +24,6 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
 void MainController::handleChangeTargets(const std::vector<std::string>& files)
 {
   m_targets = files;
-  scan();
 }
 
 void MainController::handleChangeRuleset(RulesetView::Ref ruleset)
@@ -43,6 +43,7 @@ void MainController::handleScanComplete(const std::string& error)
   if (m_ruleWindow && m_ruleWindow->isVisible()) {
     m_ruleWindow->setRules(m_rm->getRules());
   }
+  m_mainWindow->scanEnd();
 }
 
 void MainController::handleRulesUpdated()
@@ -97,10 +98,16 @@ void MainController::handleAboutWindowOpen()
   m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io));
 }
 
+void MainController::handleUserScanAbort()
+{
+  m_rm->scanAbort();
+}
+
 void MainController::scan()
 {
   if (!m_targets.empty() && m_haveRuleset) {
     m_rm->scan(m_targets, m_ruleset);
+    m_mainWindow->scanBegin();
   }
 }
 

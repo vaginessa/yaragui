@@ -25,6 +25,7 @@ public:
 
   void scan(const std::string& target, RulesetView::Ref view);
   void scan(const std::vector<std::string>& targets, RulesetView::Ref view);
+  void scanAbort();
   void compile(RulesetView::Ref view);
 
   std::vector<RulesetView::Ref> getRules() const;
@@ -65,6 +66,7 @@ private:
   std::list<Ruleset::Ref> m_queueRules;
 
   bool m_forceCompile;
+  bool m_scanAborted;
 
 };
 

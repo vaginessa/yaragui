@@ -27,7 +27,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
   info << "Bult on " << __DATE__ << " at " << __TIME__ << "<br><br>";
   info << "Written in C++ by dila<br>";
   info << "For updates see:<br>";
-  info << "<a href=\"http://www.movss.com/~rich/yaragui/\">http://sigint9.github.io/yaragui/</a><br><br>";
+  info << "<a href=\"http://sigint9.github.io/yaragui/\">http://sigint9.github.io/yaragui/</a><br><br>";
   info << "Yara version " << YR_VERSION << "<br>";
   info << "Qt version " << qVersion() << "<br>";
   info << "Boost version " << BOOST_LIB_VERSION << "<br>";

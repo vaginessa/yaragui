@@ -93,7 +93,7 @@ void MainWindow::scanEnd()
   m_stopButton->hide();
 
   if (!m_scanAborted) {
-    m_ui.statusBar->showMessage("Scan complete");
+    m_ui.statusBar->showMessage("Operation complete");
   } else {
     m_ui.statusBar->showMessage("Scan aborted");
   }

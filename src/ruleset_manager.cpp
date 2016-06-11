@@ -199,6 +199,9 @@ void RulesetManager::scanWithCompiledRules()
       QString fullPath = dir.absoluteFilePath(files[j]);
       m_queueTargets.push_front(fullPath.toStdString());
     }
+    /* try again, recurse into more subdirectories if needed */
+    m_io.post(boost::bind(&RulesetManager::scanWithCompiledRules, this));
+    return;
   }
 
   if (m_queueRules.empty()) { /* reload rules if we scanned them all */

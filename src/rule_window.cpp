@@ -2,6 +2,7 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDropEvent>
@@ -64,6 +65,7 @@ RuleWindow::RuleWindow()
 void RuleWindow::setRules(const std::vector<RulesetView::Ref>& rules)
 {
   rulesToView(rules);
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 }
 
 void RuleWindow::handleButtonClicked(QAbstractButton* button)
@@ -75,6 +77,7 @@ void RuleWindow::handleButtonClicked(QAbstractButton* button)
     close();
     break;
   case QDialogButtonBox::Apply:
+    button->setEnabled(false);
     onSaveRules(m_rules);
     break;
   case QDialogButtonBox::Cancel:
@@ -91,6 +94,7 @@ void RuleWindow::handleItemEdit(QTableWidgetItem* item)
     return; /* not a name cell */
   }
   m_names[item]->setName(item->text().toStdString());
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 
 void RuleWindow::handleSelectionChanged()
@@ -125,6 +129,8 @@ void RuleWindow::handleCompileClicked()
     return; /* can only compile one rule at a time */
   }
 
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+  onSaveRules(m_rules);
   onCompileRule(rules[0]);
 }
 
@@ -142,6 +148,7 @@ void RuleWindow::handleMoveUpClicked()
   std::swap(m_rules[*index], m_rules[newIndex]);
   rulesToView(m_rules);
   m_ui.table->selectRow(newIndex);
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 
 void RuleWindow::handleMoveDownClicked()
@@ -158,6 +165,7 @@ void RuleWindow::handleMoveDownClicked()
   std::swap(m_rules[*index], m_rules[newIndex]);
   rulesToView(m_rules);
   m_ui.table->selectRow(newIndex);
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 
 void RuleWindow::handleRemoveClicked()
@@ -177,6 +185,7 @@ void RuleWindow::handleRemoveClicked()
     }
   }
   rulesToView(newRules);
+  m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
 }
 
 void RuleWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -217,6 +226,7 @@ void RuleWindow::dropEvent(QDropEvent* event)
       }
       if (!duplicate) {
         m_rules.push_back(boost::make_shared<RulesetView>(file.toStdString()));
+        m_ui.buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
       }
     }
   }

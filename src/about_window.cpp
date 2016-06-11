@@ -10,11 +10,11 @@ using namespace GfxMath;
 AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
 {
   m_ui.setupUi(this);
-  setWindowIcon(QIcon(":/glyphicons-196-info-sign.png"));
+  setWindowIcon(QIcon(":/yaragui.png"));
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_frames = std::vector<QPixmap>(25 * 6);
+  m_frames = std::vector<QPixmap>(25 * 5);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 
   m_player = new QTimer(this);
@@ -22,7 +22,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
 
   std::stringstream info;
   info << "<p align=\"center\">";
-  info << "<b>YARA GUI 0.1</b><br>";
+  info << "<b>YARA GUI 0.0.1</b><br>";
   info << "Bult on " << __DATE__ << " at " << __TIME__ << "<br><br>";
   info << "Written in C++ by dila<br>";
   info << "For updates see:<br>";
@@ -141,7 +141,7 @@ vec3 normal(vec3 p)
 float trace(vec3 o, vec3 r)
 {
   float t = 0.0;
-  for (int i = 0; i < 32; ++i) {
+  for (int i = 0; i < 16; ++i) {
       vec3 p = o + r * t;
       float d = map(p);
       t += d;

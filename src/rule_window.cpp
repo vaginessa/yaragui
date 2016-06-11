@@ -5,7 +5,7 @@
 RuleWindow::RuleWindow()
 {
   m_ui.setupUi(this);
-  setWindowIcon(QIcon(":/glyphicons-137-cogwheel.png"));
+  setWindowIcon(QIcon(":/yaragui.png"));
 
   connect(m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(handleButtonClicked(QAbstractButton*)));
 
@@ -22,21 +22,25 @@ RuleWindow::RuleWindow()
   m_ui.table->setContextMenuPolicy(Qt::ActionsContextMenu);
 
   m_compileButton = new QAction("&Compile", this);
+  m_compileButton->setEnabled(false);
   m_compileButton->setIcon(QIcon(":/glyphicons-82-refresh.png"));
   connect(m_compileButton, SIGNAL(triggered()), this, SLOT(handleCompileClicked()));
   m_ui.table->addAction(m_compileButton);
 
   m_moveUpButton = new QAction("Move &Up", this);
+  m_moveUpButton->setEnabled(false);
   m_moveUpButton->setIcon(QIcon(":/glyphicons-214-arrow-up.png"));
   connect(m_moveUpButton, SIGNAL(triggered()), this, SLOT(handleMoveUpClicked()));
   m_ui.table->addAction(m_moveUpButton);
 
   m_moveDownButton = new QAction("Move &Down", this);
+  m_moveDownButton->setEnabled(false);
   m_moveDownButton->setIcon(QIcon(":/glyphicons-213-arrow-down.png"));
   connect(m_moveDownButton, SIGNAL(triggered()), this, SLOT(handleMoveDownClicked()));
   m_ui.table->addAction(m_moveDownButton);
 
   m_removeButton = new QAction("&Remove", this);
+  m_removeButton->setEnabled(false);
   m_removeButton->setIcon(QIcon(":/glyphicons-200-ban-circle.png"));
   connect(m_removeButton, SIGNAL(triggered()), this, SLOT(handleRemoveClicked()));
   m_ui.table->addAction(m_removeButton);

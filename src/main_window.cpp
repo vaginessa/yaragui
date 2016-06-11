@@ -63,27 +63,39 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
 
 void MainWindow::scanBegin()
 {
-  m_stopButton->show();
-  m_stopButton->setEnabled(true);
-  m_scanTimer->start(1000/10);
-  m_scanAborted = false;
-  m_ui.tree->clear();
   m_treeItems.clear();
   m_targetMap.clear();
   m_scannerRuleMap.clear();
   m_rulesetViewMap.clear();
   m_matchPanel->hide();
   m_targetPanel->hide();
+  m_ui.tree->clear();
+
+  m_ui.targetPath->setEnabled(false);
+  m_ui.targetButton->setEnabled(false);
+  m_ui.rulePath->setEnabled(false);
+  m_ui.ruleButton->setEnabled(false);
+
+  m_scanAborted = false;
+  m_stopButton->show();
+  m_stopButton->setEnabled(true);
+  m_scanTimer->start(1000/10);
 }
 
 void MainWindow::scanEnd()
 {
+  m_ui.targetPath->setEnabled(true);
+  m_ui.targetButton->setEnabled(true);
+  m_ui.rulePath->setEnabled(true);
+  m_ui.ruleButton->setEnabled(true);
+
   m_scanTimer->stop();
   m_stopButton->hide();
+
   if (!m_scanAborted) {
-    m_ui.statusBar->showMessage("Scan complete.");
+    m_ui.statusBar->showMessage("Scan complete");
   } else {
-    m_ui.statusBar->showMessage("Scan aborted.");
+    m_ui.statusBar->showMessage("Scan aborted");
   }
 }
 
@@ -98,8 +110,11 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
   allRules->setIcon(QIcon(":/glyphicons-320-sort.png"));
   connect(allRules, SIGNAL(triggered()), this, SLOT(handleSelectRuleAllFromMenu()));
 
-  if (rules.empty()) {
-    allRules->setEnabled(false);
+  allRules->setEnabled(false);
+  BOOST_FOREACH(RulesetView::Ref rule, rules) {
+    if (rule->isCompiled()) {
+      allRules->setEnabled(true);
+    }
   }
 
   menu->addSeparator();
@@ -113,6 +128,9 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
       action = menu->addAction(rules[i]->name().c_str());
     } else {
       action = menu->addAction(rules[i]->file().c_str());
+    }
+    if (!rules[i]->isCompiled()) {
+      action->setEnabled(false);
     }
     action->setIcon(QIcon(":/glyphicons-319-more-items.png"));
     connect(action, SIGNAL(triggered()), m_signalMapper, SLOT(map()));
@@ -177,7 +195,7 @@ void MainWindow::handleSelectRuleAllFromMenu()
 {
   /* null pointer means scan with every rule */
   onChangeRuleset(RulesetView::Ref());
-  m_ui.rulePath->setText(tr("[All Rules]"));
+  m_ui.rulePath->setText(tr("(All Rules)"));
 }
 
 void MainWindow::handleSelectRuleFromMenu(int rule)
@@ -192,6 +210,7 @@ void MainWindow::handleTargetFileBrowse()
   QString file = QFileDialog::getOpenFileName(this, "Select Target File", QString(), "All Files (*)");
   if (!file.isEmpty()) {
     m_ui.targetPath->setText(file);
+    m_ui.rulePath->setText(tr("")); /* need to select rules again */
     std::vector<std::string> targets;
     targets.push_back(file.toStdString());
     onChangeTargets(targets);
@@ -203,6 +222,7 @@ void MainWindow::handleTargetDirectoryBrowse()
   QString dir = QFileDialog::getExistingDirectory(this, "Select Target Directory");
   if (!dir.isEmpty()) {
     m_ui.targetPath->setText(dir);
+    m_ui.rulePath->setText(tr("")); /* need to select rules again */
     std::vector<std::string> targets;
     targets.push_back(dir.toStdString());
     onChangeTargets(targets);
@@ -240,7 +260,7 @@ void MainWindow::treeItemSelectionChanged()
   if (m_targetMap.find(selectedItem) != m_targetMap.end()) {
     std::string target = m_targetMap[selectedItem];
     m_matchPanel->hide();
-    m_targetPanel->show(target);
+    //m_targetPanel->show(target);
   } else {
     ScannerRule::Ref rule = m_scannerRuleMap[selectedItem];
     RulesetView::Ref view = m_rulesetViewMap[selectedItem];
@@ -262,7 +282,6 @@ void MainWindow::handleScanTimer()
 void MainWindow::handleScanAbortButton()
 {
   m_scanTimer->stop();
-  m_ui.statusBar->showMessage("Aborting...");
   m_stopButton->setEnabled(false);
   m_scanAborted = true;
   onScanAbort();
@@ -313,12 +332,12 @@ void MainWindow::dropEvent(QDropEvent* event)
     targets.push_back(file.toStdString());
   }
 
-
   if (targets.size() == 1) {
     m_ui.targetPath->setText(targets[0].c_str());
   } else {
-    m_ui.targetPath->setText(tr("[Multiple Targets]"));
+    m_ui.targetPath->setText(tr("(Multiple Targets)"));
   }
+  m_ui.rulePath->setText(tr("")); /* need to select rules again */
 
   onChangeTargets(targets);
   event->acceptProposedAction();

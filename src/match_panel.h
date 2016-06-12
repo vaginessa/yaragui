@@ -25,6 +25,25 @@ private slots:
 
 private:
 
+  /* necessary to sort the items in the table */
+  class OffsetTableWidgetItem : public QTableWidgetItem
+  {
+  public:
+    OffsetTableWidgetItem(uint64_t offset) : m_offset(offset)
+    {
+    }
+    virtual bool operator <(const QTableWidgetItem &rhs) const
+    {
+      OffsetTableWidgetItem const *item = dynamic_cast<OffsetTableWidgetItem const*>(&rhs);
+      if(item) {
+        return m_offset < item->m_offset;
+      } else {
+          return QTableWidgetItem::operator<(rhs);
+      }
+    }
+    uint64_t m_offset;
+  };
+
   enum Mode
   {
     ModeStrings,

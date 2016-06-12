@@ -6,6 +6,7 @@
 #include <QtWidgets/QMenu>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDropEvent>
+#include <QtGui/QClipboard>
 #include <QtCore/QMimeData>
 
 MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
@@ -34,10 +35,18 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
 
   m_ui.tree->setColumnCount(2);
   m_ui.tree->header()->hide();
-  m_ui.tree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-  m_ui.tree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  m_ui.tree->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  m_ui.tree->header()->setSectionResizeMode(1, QHeaderView::Stretch);
   m_ui.tree->header()->setStretchLastSection(false);
   connect(m_ui.tree, SIGNAL(itemSelectionChanged()), this, SLOT(treeItemSelectionChanged()));
+
+  /* copy meny for tree view */
+  m_copyMenuAction = new QAction("&Copy", this);
+  connect(m_copyMenuAction, SIGNAL(triggered()), this, SLOT(handleCopyItemClicked()));
+  m_copyMenuAction->setIcon(QIcon::fromTheme("edit-copy"));
+  m_copyMenuAction->setEnabled(false);
+  m_ui.tree->addAction(m_copyMenuAction);
+  m_ui.tree->setContextMenuPolicy(Qt::ActionsContextMenu);
 
   m_targetPanel = new TargetPanel(this);
   m_ui.splitter->addWidget(m_targetPanel);
@@ -248,8 +257,11 @@ void MainWindow::treeItemSelectionChanged()
   QList<QTreeWidgetItem *> items = m_ui.tree->selectedItems();
 
   if (!items.size()) {
+    m_copyMenuAction->setEnabled(false);
     return;
   }
+
+  m_copyMenuAction->setEnabled(true);
 
   QTreeWidgetItem* selectedItem = items[0];
   if (m_targetMap.find(selectedItem) != m_targetMap.end()) {
@@ -280,6 +292,17 @@ void MainWindow::handleScanAbortButton()
   m_stopButton->setEnabled(false);
   m_scanAborted = true;
   onScanAbort();
+}
+
+void MainWindow::handleCopyItemClicked()
+{
+  QList<QTreeWidgetItem*> items = m_ui.tree->selectedItems();
+  if (items.size() != 1) {
+    return;
+  }
+  QClipboard *clipboard = QApplication::clipboard();
+  clipboard->clear();
+  clipboard->setText(items[0]->text(0));
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)

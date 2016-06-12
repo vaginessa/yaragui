@@ -44,6 +44,7 @@ private slots:
   void treeItemSelectionChanged();
   void handleScanTimer();
   void handleScanAbortButton();
+  void handleCopyItemClicked();
 
 private:
 
@@ -57,6 +58,7 @@ private:
   Ui::MainWindow m_ui;
   QLabel* m_status;
   QToolButton* m_stopButton;
+  QAction* m_copyMenuAction;
   TargetPanel* m_targetPanel;
   MatchPanel* m_matchPanel;
   QSignalMapper* m_signalMapper;

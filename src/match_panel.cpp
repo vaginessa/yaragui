@@ -78,7 +78,8 @@ void MatchPanel::showStrings()
 
       std::stringstream offset;
       offset << "0x" << std::hex << std::uppercase << match->offset;
-      QTableWidgetItem* offsetItem = new QTableWidgetItem(offset.str().c_str());
+      QTableWidgetItem* offsetItem = new OffsetTableWidgetItem(match->offset);
+      offsetItem->setText(offset.str().c_str());
       offsetItem->setFlags(offsetItem->flags() & ~Qt::ItemIsEditable);
       m_ui.table->setItem(row, 0, offsetItem);
 

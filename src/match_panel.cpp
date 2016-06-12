@@ -6,6 +6,11 @@
 #include <QtWidgets/QToolBar>
 #include <QtGui/QClipboard>
 
+#ifdef WIN32
+  #undef min
+  #undef max
+#endif
+
 MatchPanel::MatchPanel(QWidget* parent) : QWidget(parent), m_mode(ModeStrings)
 {
   m_ui.setupUi(this);

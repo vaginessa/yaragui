@@ -6,6 +6,11 @@
 #include <algorithm>
 #include <yara.h>
 
+#ifdef WIN32
+  #undef min
+  #undef max
+#endif
+
 ScannerRule::ScannerRule(YR_RULE* rule)
 {
   identifier = rule->identifier;

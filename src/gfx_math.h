@@ -10,8 +10,8 @@
 #include <algorithm>
 
 #ifdef WIN32
-#undef min
-#undef max
+  #undef min
+  #undef max
 #endif
 
 namespace GfxMath {
@@ -125,10 +125,12 @@ public:
   
   Vector<T,N>& operator *=(const T& rhs) {
     *this = *this * rhs;
+    return *this;
   }
   
   Vector<T,N>& operator *=(const Vector<T,N>& rhs) {
     *this = *this * rhs;
+    return *this;
   }
   
   Vector<T,N> operator /(const T& rhs) const {
@@ -149,10 +151,12 @@ public:
   
   Vector<T,N>& operator /=(const T& rhs) {
     *this = *this / rhs;
+    return *this;
   }
   
   Vector<T,N>& operator /=(const Vector<T,N>& rhs) {
     *this = *this / rhs;
+    return *this;
   }
   
   Vector<T,N> operator %(const T& rhs) const {
@@ -173,10 +177,12 @@ public:
   
   Vector<T,N>& operator %=(const T& rhs) {
     *this = *this % rhs;
+    return *this;
   }
   
   Vector<T,N>& operator %=(const Vector<T,N>& rhs) {
     *this = *this % rhs;
+    return *this;
   }
   
   Vector<T,N> operator +(const T& rhs) const {
@@ -197,10 +203,12 @@ public:
   
   Vector<T,N>& operator +=(const T& rhs) {
     *this = *this + rhs;
+    return *this;
   }
   
   Vector<T,N>& operator +=(const Vector<T,N>& rhs) {
     *this = *this + rhs;
+    return *this;
   }
 
   Vector<T,N> operator -(const T& rhs) const {
@@ -221,10 +229,12 @@ public:
   
   Vector<T,N>& operator -=(const T& rhs) {
     *this = *this - rhs;
+    return *this;
   }
   
   Vector<T,N>& operator -=(const Vector<T,N>& rhs) {
     *this = *this - rhs;
+    return *this;
   }
   
   T& permute(const int x) {

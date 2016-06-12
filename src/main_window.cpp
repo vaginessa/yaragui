@@ -62,6 +62,7 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
   m_stopButton->hide();
   m_ui.statusBar->addPermanentWidget(m_stopButton);
   m_status = new QLabel(this);
+  m_status->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   m_ui.statusBar->addPermanentWidget(m_status, 1);
 
   /* timer to control status bar animation */

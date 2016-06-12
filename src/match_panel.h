@@ -20,6 +20,9 @@ private slots:
   void showStrings();
   void showMeta();
 
+  void handleSelectionChanged();
+  void handleCopyItemClicked();
+
 private:
 
   enum Mode
@@ -33,6 +36,7 @@ private:
   ScannerRule::Ref m_rule;
   RulesetView::Ref m_view;
 
+  QAction* m_copyMenuAction;
   QAction* m_stringsButton;
   QAction* m_metaButton;
 

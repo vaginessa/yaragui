@@ -7,6 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <yara/types.h>
 #include <vector>
+#include <ostream>
 
 struct ScannerRule
 {
@@ -43,5 +44,7 @@ struct ScannerRule
   std::vector<String::Ref> strings;
   std::vector<Meta::Ref> metas;
 };
+
+std::ostream& operator <<(std::ostream& os, ScannerRule::Ref rule);
 
 #endif // __SCANNER_RULE_H__

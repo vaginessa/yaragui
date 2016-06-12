@@ -7,12 +7,14 @@
         <file>glyphicons-320-sort.png</file>
         <file>glyphicons-441-folder-closed.png</file>
         <file>glyphicons-82-refresh.png</file>
-        <file>glyphicons-200-ban-circle.png</file>
         <file>glyphicons-207-ok.png</file>
         <file>glyphicons-208-remove.png</file>
         <file>glyphicons-213-arrow-down.png</file>
         <file>glyphicons-214-arrow-up.png</file>
         <file>yaragui.png</file>
         <file>glyphicons-176-stop.png</file>
+        <file>glyphicons-67-tags.png</file>
+        <file>glyphicons-120-table.png</file>
+        <file>glyphicons-200-ban-circle.png</file>
     </qresource>
 </RCC>

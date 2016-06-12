@@ -1,8 +1,10 @@
 #include "match_panel.h"
 #include <boost/foreach.hpp>
+#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <QtWidgets/QToolBar>
+#include <QtGui/QClipboard>
 
 MatchPanel::MatchPanel(QWidget* parent) : QWidget(parent), m_mode(ModeStrings)
 {
@@ -17,13 +19,21 @@ MatchPanel::MatchPanel(QWidget* parent) : QWidget(parent), m_mode(ModeStrings)
 
   m_stringsButton = tb->addAction("Strings");
   connect(m_stringsButton, SIGNAL(triggered()), this, SLOT(showStrings()));
-  m_stringsButton->setIcon(QIcon("res/glyphicons-120-table.png"));
+  m_stringsButton->setIcon(QIcon(":/glyphicons-120-table.png"));
 
   m_metaButton = tb->addAction("Metas");
   connect(m_metaButton, SIGNAL(triggered()), this, SLOT(showMeta()));
-  m_metaButton->setIcon(QIcon("res/glyphicons-67-tags.png"));
+  m_metaButton->setIcon(QIcon(":/glyphicons-67-tags.png"));
 
   m_ui.table->verticalHeader()->hide();
+  m_ui.table->setContextMenuPolicy(Qt::ActionsContextMenu);
+  m_copyMenuAction = new QAction("&Copy", this);
+  m_copyMenuAction->setIcon(QIcon::fromTheme("edit-copy"));
+  m_copyMenuAction->setEnabled(false);
+  connect(m_copyMenuAction, SIGNAL(triggered()), this, SLOT(handleCopyItemClicked()));
+  m_ui.table->addAction(m_copyMenuAction);
+
+  connect(m_ui.table, SIGNAL(itemSelectionChanged()), this, SLOT(handleSelectionChanged()));
 }
 
 void MatchPanel::show(const ScannerRule::Ref rule, RulesetView::Ref view)
@@ -51,11 +61,11 @@ void MatchPanel::showStrings()
   m_stringsButton->setEnabled(false);
   m_metaButton->setEnabled(true);
 
-  m_ui.table->setSortingEnabled(true);
+  m_ui.table->setSortingEnabled(false);
   m_ui.table->setRowCount(0);
   m_ui.table->setColumnCount(3);
   QStringList headerLabels;
-  headerLabels << "ID" << "Offset" << "Bytes";
+  headerLabels << "Offset" << "ID" << "Bytes";
   m_ui.table->setHorizontalHeaderLabels(headerLabels);
   m_ui.table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
   m_ui.table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -66,21 +76,33 @@ void MatchPanel::showStrings()
       int row = m_ui.table->rowCount();
       m_ui.table->setRowCount(row + 1);
 
-      m_ui.table->setItem(row, 0, new QTableWidgetItem(string->identifier.c_str()));
-
       std::stringstream offset;
-      offset << "0x" << std::hex << std::setfill('0') << std::setw(8) << match->offset;
-      m_ui.table->setItem(row, 1, new QTableWidgetItem(offset.str().c_str()));
+      offset << "0x" << std::hex << std::uppercase << match->offset;
+      QTableWidgetItem* offsetItem = new QTableWidgetItem(offset.str().c_str());
+      offsetItem->setFlags(offsetItem->flags() & ~Qt::ItemIsEditable);
+      m_ui.table->setItem(row, 0, offsetItem);
+
+      QTableWidgetItem* identifierItem = new QTableWidgetItem(string->identifier.c_str());
+      identifierItem->setFlags(identifierItem->flags() & ~Qt::ItemIsEditable);
+      m_ui.table->setItem(row, 1, identifierItem);
 
       std::stringstream bytes;
-      for (size_t i = 0; i < match->data.size(); ++i) {
-        bytes << (i != 0 ? " " : "") << std::hex << std::setfill('0') << std::setw(2) << int(match->data[i]);
+      size_t maxBytes = std::min(match->data.size(), size_t(32));
+      for (size_t i = 0; i < maxBytes; ++i) {
+        bytes << (i != 0 ? " " : "") << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << int(match->data[i]);
       }
-      m_ui.table->setItem(row, 2, new QTableWidgetItem(bytes.str().c_str()));
+      if (maxBytes != match->data.size()) {
+        bytes << "...";
+      }
+      QTableWidgetItem* bytesItem = new QTableWidgetItem(bytes.str().c_str());
+      bytesItem->setFlags(bytesItem->flags() & ~Qt::ItemIsEditable);
+      m_ui.table->setItem(row, 2, bytesItem);
     }
   }
 
-  m_ui.table->sortItems(1);
+  m_ui.table->setSortingEnabled(true);
+  m_ui.table->sortItems(0);
+  m_ui.table->setSortingEnabled(false);
 }
 
 void MatchPanel::showMeta()
@@ -93,7 +115,7 @@ void MatchPanel::showMeta()
   m_ui.table->setRowCount(0);
   m_ui.table->setColumnCount(2);
   QStringList headerLabels;
-  headerLabels << "ID" << "Value";
+  headerLabels << "Name" << "Value";
   m_ui.table->setHorizontalHeaderLabels(headerLabels);
   m_ui.table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
   m_ui.table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -101,7 +123,32 @@ void MatchPanel::showMeta()
   BOOST_FOREACH(ScannerRule::Meta::Ref meta, m_rule->metas) {
     int row = m_ui.table->rowCount();
     m_ui.table->setRowCount(row + 1);
-    m_ui.table->setItem(row, 0, new QTableWidgetItem(meta->identifier.c_str()));
-    m_ui.table->setItem(row, 1, new QTableWidgetItem(meta->value.c_str()));
+    QTableWidgetItem* identifierItem = new QTableWidgetItem(meta->identifier.c_str());
+    identifierItem->setFlags(identifierItem->flags() & ~Qt::ItemIsEditable);
+    m_ui.table->setItem(row, 0, identifierItem);
+
+    QTableWidgetItem* valueItem = new QTableWidgetItem(meta->value.c_str());
+    valueItem->setFlags(valueItem->flags() & ~Qt::ItemIsEditable);
+    m_ui.table->setItem(row, 1, valueItem);
   }
+}
+
+void MatchPanel::handleSelectionChanged()
+{
+  if (m_ui.table->selectedItems().size()) {
+    m_copyMenuAction->setEnabled(true);
+  } else {
+    m_copyMenuAction->setEnabled(false);
+  }
+}
+
+void MatchPanel::handleCopyItemClicked()
+{
+  QList<QTableWidgetItem*> items = m_ui.table->selectedItems();
+  if (items.size() != 1) {
+    return;
+  }
+  QClipboard *clipboard = QApplication::clipboard();
+  clipboard->clear();
+  clipboard->setText(items[0]->text());
 }

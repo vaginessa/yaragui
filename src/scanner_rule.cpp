@@ -1,6 +1,9 @@
 #include "scanner_rule.h"
 #include <boost/make_shared.hpp>
+#include <boost/foreach.hpp>
 #include <sstream>
+#include <iomanip>
+#include <algorithm>
 #include <yara.h>
 
 ScannerRule::ScannerRule(YR_RULE* rule)
@@ -53,4 +56,28 @@ ScannerRule::ScannerRule(YR_RULE* rule)
     }
     strings.push_back(sref);
   }
+}
+
+std::ostream& operator <<(std::ostream& os, ScannerRule::Ref rule)
+{
+  BOOST_FOREACH(ScannerRule::String::Ref string, rule->strings) {
+    BOOST_FOREACH(ScannerRule::Match::Ref match, string->matches) {
+      std::stringstream offset;
+      offset << "0x" << std::hex << std::setw(8) << std::setfill('0') << match->offset;
+
+      std::stringstream bytes;
+      size_t maxBytes = std::min(match->data.size(), size_t(16));
+      for (size_t i = 0; i < maxBytes; ++i) {
+        bytes << (i != 0 ? " " : "") << std::hex << std::setw(2) << std::setfill('0') << int(match->data[i]);
+      }
+
+      if (maxBytes != match->data.size()) {
+        bytes << "...";
+      }
+
+      os << offset.str() << ":" << string->identifier << " " << bytes.str() << std::endl;
+    }
+  }
+
+  return os;
 }

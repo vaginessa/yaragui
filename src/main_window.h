@@ -49,6 +49,8 @@ private:
 
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
+  void keyPressEvent(QKeyEvent *event);
+  void closeEvent(QCloseEvent *event);
 
   boost::asio::io_service& m_io;
 

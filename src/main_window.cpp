@@ -337,3 +337,22 @@ void MainWindow::dropEvent(QDropEvent* event)
   onChangeTargets(targets);
   event->acceptProposedAction();
 }
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+  switch(event->key())
+  {
+  case Qt::Key_Escape:
+    close();
+    break;
+  default:
+    QMainWindow::keyPressEvent(event);
+  }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  /* dont let any open dialogs prevent application shutdown */
+  QApplication::exit(0);
+  event->accept();
+}

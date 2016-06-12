@@ -52,12 +52,14 @@ MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
   m_stopButton->setFixedWidth(m_stopButton->height());
   m_stopButton->hide();
   m_ui.statusBar->addPermanentWidget(m_stopButton);
-  m_ui.statusBar->showMessage("Drag file into window and select rule to scan");
+  m_status = new QLabel(this);
+  m_ui.statusBar->addPermanentWidget(m_status, 1);
 
   /* timer to control status bar animation */
   m_scanTimer = new QTimer(this);
   connect(m_scanTimer, SIGNAL(timeout()), this, SLOT(handleScanTimer()));
 
+  m_status->setText("Drag file into window and select rule to scan");
   show();
 }
 
@@ -93,9 +95,9 @@ void MainWindow::scanEnd()
   m_stopButton->hide();
 
   if (!m_scanAborted) {
-    m_ui.statusBar->showMessage("Operation complete");
+    m_status->setText("Operation complete");
   } else {
-    m_ui.statusBar->showMessage("Scan aborted");
+    m_status->setText("Scan aborted");
   }
 }
 
@@ -110,13 +112,6 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
   allRules->setIcon(QIcon(":/glyphicons-320-sort.png"));
   connect(allRules, SIGNAL(triggered()), this, SLOT(handleSelectRuleAllFromMenu()));
 
-  allRules->setEnabled(false);
-  BOOST_FOREACH(RulesetView::Ref rule, rules) {
-    if (rule->isCompiled()) {
-      allRules->setEnabled(true);
-    }
-  }
-
   menu->addSeparator();
 
   m_signalMapper = new QSignalMapper(this);
@@ -130,7 +125,7 @@ void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
       action = menu->addAction(rules[i]->fileNameOnly().c_str());
     }
     if (!rules[i]->isCompiled()) {
-      action->setEnabled(false);
+      action->setText(action->text() + "*");
     }
     action->setIcon(QIcon(":/glyphicons-319-more-items.png"));
     connect(action, SIGNAL(triggered()), m_signalMapper, SLOT(map()));
@@ -276,7 +271,7 @@ void MainWindow::handleScanTimer()
   m_scanPhase = (m_scanPhase + 1) % progress.size();
   std::string message = "[" + progress[m_scanPhase] + "] ";
   message += "Scanning...";
-  m_ui.statusBar->showMessage(message.c_str());
+  m_status->setText(message.c_str());
 }
 
 void MainWindow::handleScanAbortButton()

@@ -15,9 +15,26 @@ public:
 
   void show(const ScannerRule::Ref rule, RulesetView::Ref view);
 
+private slots:
+
+  void showStrings();
+  void showMeta();
+
 private:
 
+  enum Mode
+  {
+    ModeStrings,
+    ModeMeta,
+  };
+
   Ui::MatchPanel m_ui;
+  Mode m_mode;
+  ScannerRule::Ref m_rule;
+  RulesetView::Ref m_view;
+
+  QAction* m_stringsButton;
+  QAction* m_metaButton;
 
 };
 

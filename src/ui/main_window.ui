@@ -32,7 +32,7 @@
             <bool>true</bool>
            </property>
            <property name="placeholderText">
-            <string>Target File</string>
+            <string>Select a target file</string>
            </property>
           </widget>
          </item>
@@ -62,7 +62,7 @@
             <bool>true</bool>
            </property>
            <property name="placeholderText">
-            <string>Rule File</string>
+            <string>Select a rule file</string>
            </property>
           </widget>
          </item>

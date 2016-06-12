@@ -53,6 +53,7 @@ private:
   boost::asio::io_service& m_io;
 
   Ui::MainWindow m_ui;
+  QLabel* m_status;
   QToolButton* m_stopButton;
   TargetPanel* m_targetPanel;
   MatchPanel* m_matchPanel;

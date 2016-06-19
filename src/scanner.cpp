@@ -1,6 +1,7 @@
 #include "scanner.h"
 #include <sstream>
 #include <fstream>
+#include <boost/make_shared.hpp>
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>

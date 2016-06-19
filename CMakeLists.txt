@@ -10,7 +10,10 @@ include_directories(/opt/boost)
 link_directories(/opt/boost/stage/lib)
 
 # where is Qt5?
-set(CMAKE_PREFIX_PATH "/data/util/qt5/5.3/gcc_64")
+set(CMAKE_PREFIX_PATH "/data/util/qt5/5.7/gcc_64")
+
+# enable c++11
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(AUTOUIC TRUE)
 set(AUTOMOC TRUE)

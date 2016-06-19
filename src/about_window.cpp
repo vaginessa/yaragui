@@ -1,4 +1,5 @@
 #include "about_window.h"
+#include <boost/make_shared.hpp>
 #include <boost/version.hpp>
 #include <yara.h>
 #include <QtGui/QKeyEvent>

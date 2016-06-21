@@ -9,6 +9,7 @@
 #include "about_window.h"
 #include "settings.h"
 #include "ruleset_manager.h"
+#include "stats_calculator.h"
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -27,6 +28,8 @@ private:
   void handleScanComplete(const std::string& error);
   void handleRulesUpdated();
 
+  void handleFileStats(FileStats::Ref stats);
+
   void handleRequestRuleWindowOpen();
   void handleRuleWindowSave(const std::vector<RulesetView::Ref>& rules);
   void handleRuleWindowCompile(RulesetView::Ref view);
@@ -41,6 +44,7 @@ private:
   boost::asio::io_service& m_io;
   boost::shared_ptr<Settings> m_settings;
   boost::shared_ptr<RulesetManager> m_rm;
+  boost::shared_ptr<StatsCalculator> m_sc;
 
   boost::shared_ptr<MainWindow> m_mainWindow;
   boost::shared_ptr<RuleWindow> m_ruleWindow;

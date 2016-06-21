@@ -6,10 +6,12 @@
 #include "match_panel.h"
 #include "ruleset_view.h"
 #include "scanner_rule.h"
+#include "file_stats.h"
 #include <boost/signals2.hpp>
 #include <boost/asio/io_service.hpp>
 #include <QtCore/QSignalMapper>
 #include <QtCore/QTimer>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QFileIconProvider>
 
@@ -31,6 +33,7 @@ public:
   void scanEnd();
   void setRules(const std::vector<RulesetView::Ref>& rules);
   void addScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view);
+  void updateFileStats(FileStats::Ref stats);
 
 private slots:
 
@@ -75,6 +78,8 @@ private:
   std::map<QTreeWidgetItem*, std::string> m_targetMap;
   std::map<QTreeWidgetItem*, ScannerRule::Ref> m_scannerRuleMap;
   std::map<QTreeWidgetItem*, RulesetView::Ref> m_rulesetViewMap;
+
+  std::map<std::string, FileStats::Ref> m_fileStats;
 
 };
 

@@ -11,6 +11,9 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_rm->onScanComplete.connect(boost::bind(&MainController::handleScanComplete, this, _1));
   m_rm->onRulesUpdated.connect(boost::bind(&MainController::handleRulesUpdated, this));
 
+  m_sc = boost::make_shared<StatsCalculator>(boost::ref(io));
+  m_sc->onFileStats.connect(boost::bind(&MainController::handleFileStats, this, _1));
+
   m_mainWindow = boost::make_shared<MainWindow>(boost::ref(io));
   m_mainWindow->onChangeTargets.connect(boost::bind(&MainController::handleChangeTargets, this, _1));
   m_mainWindow->onChangeRuleset.connect(boost::bind(&MainController::handleChangeRuleset, this, _1));
@@ -35,6 +38,9 @@ void MainController::handleChangeRuleset(RulesetView::Ref ruleset)
 
 void MainController::handleScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view)
 {
+  if (!rule) {
+    m_sc->getStats(target);
+  }
   m_mainWindow->addScanResult(target, rule, view);
 }
 
@@ -59,6 +65,11 @@ void MainController::handleRulesUpdated()
   BOOST_FOREACH(RulesetView::Ref rule, rules) {
     updateCompileWindows(rule);
   }
+}
+
+void MainController::handleFileStats(FileStats::Ref stats)
+{
+  m_mainWindow->updateFileStats(stats);
 }
 
 void MainController::handleRequestRuleWindowOpen()

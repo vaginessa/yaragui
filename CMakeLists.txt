@@ -39,6 +39,8 @@ set(Sources
   src/compile_window.cpp
   src/about_window.cpp
   src/gfx_renderer.cpp
+  src/stats_calculator.cpp
+  src/file_stats.cpp
 )
 
 QT5_WRAP_CPP(Sources

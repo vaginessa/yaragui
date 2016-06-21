@@ -79,6 +79,7 @@ void MainWindow::scanBegin()
   m_targetMap.clear();
   m_scannerRuleMap.clear();
   m_rulesetViewMap.clear();
+  m_fileStats.clear();
   m_matchPanel->hide();
   m_targetPanel->hide();
   m_ui.tree->clear();
@@ -196,6 +197,11 @@ void MainWindow::addScanResult(const std::string& target, ScannerRule::Ref rule,
   }
 }
 
+void MainWindow::updateFileStats(FileStats::Ref stats)
+{
+  m_fileStats[stats->filename()] = stats;
+}
+
 void MainWindow::handleSelectRuleAllFromMenu()
 {
   /* null pointer means scan with every rule */
@@ -268,7 +274,7 @@ void MainWindow::treeItemSelectionChanged()
   if (m_targetMap.find(selectedItem) != m_targetMap.end()) {
     std::string target = m_targetMap[selectedItem];
     m_matchPanel->hide();
-    //m_targetPanel->show(target);
+    m_targetPanel->show(m_fileStats[target]);
   } else {
     ScannerRule::Ref rule = m_scannerRuleMap[selectedItem];
     RulesetView::Ref view = m_rulesetViewMap[selectedItem];

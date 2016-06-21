@@ -86,6 +86,7 @@ FileStats::FileStats(const std::string& filename) : m_filename(filename), m_acce
   }
 
   /* project the 3d histogram so we can display it in 2d */
+  double maxEntropy = 0;
   m_entropy2d = std::vector<double>(256 * 256);
   for (int x = 0; x < 256; ++x) {
     for (int y = 0; y < 256; ++y) {
@@ -106,7 +107,13 @@ FileStats::FileStats(const std::string& filename) : m_filename(filename), m_acce
         h += k * hlog(k);
       }
       m_entropy2d[y*256+x] = -h;
+      maxEntropy = std::max(maxEntropy, -h);
     }
+  }
+
+  /* normalize histogram */
+  BOOST_FOREACH(double& x, m_entropy2d) {
+    x /= maxEntropy;
   }
 
   /* entropy of the whole file */

@@ -270,6 +270,11 @@ void MainWindow::treeItemSelectionChanged()
 
   m_copyMenuAction->setEnabled(true);
 
+  QList<int> sizes = m_ui.splitter->sizes();
+  int maxSize = std::max(sizes[1], sizes[2]);
+  sizes[1] = maxSize;
+  sizes[2] = maxSize;
+
   QTreeWidgetItem* selectedItem = items[0];
   if (m_targetMap.find(selectedItem) != m_targetMap.end()) {
     std::string target = m_targetMap[selectedItem];
@@ -281,6 +286,8 @@ void MainWindow::treeItemSelectionChanged()
     m_targetPanel->hide();
     m_matchPanel->show(rule, view);
   }
+
+  m_ui.splitter->setSizes(sizes);
 }
 
 void MainWindow::handleScanTimer()

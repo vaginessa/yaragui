@@ -29,8 +29,8 @@ void TargetPanel::show(FileStats::Ref stats)
 {
   m_stats = stats;
   prepareHistogram();
-  renderView();
   QWidget::show();
+  renderView();
 }
 
 void TargetPanel::showHistogram()
@@ -39,8 +39,8 @@ void TargetPanel::showHistogram()
   m_histogramButton->setEnabled(false);
   m_lineGraphButton->setEnabled(true);
 
-  m_ui.infoFrame->setVisible(false);
-  m_ui.rightFrame->setVisible(true);
+  m_ui.infoFrame->hide();
+  m_ui.rightFrame->show();
 
   renderView();
 }
@@ -51,8 +51,8 @@ void TargetPanel::showLineGraph()
   m_histogramButton->setEnabled(true);
   m_lineGraphButton->setEnabled(false);
 
-  m_ui.infoFrame->setVisible(true);
-  m_ui.rightFrame->setVisible(false);
+  m_ui.rightFrame->hide();
+  m_ui.infoFrame->show();
 
   renderView();
 }
@@ -66,8 +66,10 @@ void TargetPanel::renderView()
   switch (m_viewMode) {
   case ViewModeHistogram:
     renderHistogram();
+    renderPolar();
     break;
   case ViewModeLineGraph:
+    updateInfo();
     renderLineGraph();
     break;
   default:
@@ -77,7 +79,61 @@ void TargetPanel::renderView()
 
 void TargetPanel::renderHistogram()
 {
+  /* already computed in prepareHistogram() */
   m_ui.leftGraph->setPixmap(m_histogramPixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+void TargetPanel::renderPolar()
+{
+  QPixmap pixmap(m_ui.leftGraph->size());
+  QPainter painter(&pixmap);
+
+  painter.setRenderHints(QPainter::Antialiasing);
+  painter.fillRect(pixmap.rect(), QColor(255, 255, 255));
+
+  const double width = pixmap.width();
+  const double height = pixmap.height();
+
+  const double cx = width * 0.5;
+  const double cy = height * 0.5;
+
+  const double rad = cx < cy ? cx : cy;
+
+  /* get graph limits for scaling */
+  std::vector<double> data = m_stats->entropy1d();
+  double dataMin = std::numeric_limits<double>::max();
+  double dataMax = -std::numeric_limits<double>::max();
+  for(size_t i = 0; i < data.size(); ++i)
+  {
+      dataMin = std::min(dataMin, data[i]);
+      dataMax = std::max(dataMax, data[i]);
+  }
+
+  /* use this pen for drawing the graph edge */
+  QPen graphPen = painter.pen();
+  graphPen.setWidthF(1.0);
+  graphPen.setColor(QColor(0, 0, 0));
+  painter.setPen(graphPen);
+
+  /* filled slightly transparent so you can see the grid underneath */
+  painter.setBrush(QColor(0, 0, 255, 128));
+
+  /* setup polyon points */
+  std::vector<QPointF> polygon;
+  for(size_t i = 0; i < data.size(); ++i)
+  {
+      double fi = i / double(data.size() - 1);
+      double norm = (data[i] - dataMin) / (dataMax - dataMin);
+      const double theta = fi * 3.14159 * 2.0;
+      const double xpos = cx + cos(theta) * norm * rad;
+      const double ypos = cy + sin(theta) * norm * rad;
+      polygon.push_back(QPointF(xpos, ypos));
+  }
+
+  /* draw graph as a filled polygon */
+  painter.drawPolygon(&polygon[0], polygon.size());
+
+  m_ui.rightGraph->setPixmap(pixmap);
 }
 
 void TargetPanel::renderLineGraph()
@@ -143,8 +199,8 @@ void TargetPanel::renderLineGraph()
   for(size_t i = 0; i < data.size(); ++i)
   {
       double fi = i / double(data.size() - 1);
-      double norm = (data[i] - dataMin) / (dataMax - dataMin);
-      double ypos = 1 - (1 - norm) * heightPercent;
+      double norm = data[i] / dataMax;
+      double ypos = 1 - norm * heightPercent;
       polygon.push_back(QPointF(fi * width, ypos * height));
   }
 
@@ -153,7 +209,31 @@ void TargetPanel::renderLineGraph()
   painter.drawPolygon(&polygon[0], polygon.size());
 
   m_ui.leftGraph->setPixmap(pixmap);
-  m_ui.rightGraph->setPixmap(pixmap);
+}
+
+void TargetPanel::updateInfo()
+{
+  if (!m_stats) {
+    return;
+  }
+
+  std::stringstream size;
+  size << "Size: " << m_stats->fileSize() << " bytes";
+  m_ui.sizeText->setText(size.str().c_str());
+
+  std::stringstream entropy;
+  entropy.precision(2);
+  entropy << "Entropy: " << std::fixed << m_stats->totalEntropy() << " bits";
+  m_ui.entropyText->setText(entropy.str().c_str());
+
+  double bar = m_stats->totalEntropy() / 8 * 100;
+  m_ui.progressBar->setValue(bar);
+
+  if (bar < 50) {
+    m_ui.progressBar->setFormat("Low");
+  } else {
+    m_ui.progressBar->setFormat("High");
+  }
 }
 
 int pack(double r, double g, double b)
@@ -167,11 +247,15 @@ int pack(double r, double g, double b)
 
 void TargetPanel::prepareHistogram()
 {
+  if (!m_stats) {
+    return;
+  }
   const std::vector<double>& entropy2d = m_stats->entropy2d();
   m_histogramBuffer = std::vector<int>(256 * 256);
   for (int y = 0; y < 256; ++y) {
     for (int x = 0; x < 256; ++x) {
-      double h = entropy2d[y*256+x] / 8;
+      double h = entropy2d[y*256+x];
+      //h = 1 - pow(1 - h, 8);
       m_histogramBuffer[y*256+x] = pack(h, h, h);
     }
   }

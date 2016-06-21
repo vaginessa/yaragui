@@ -28,10 +28,13 @@ private:
     ViewModeLineGraph
   };
 
-  void renderView();
+  void renderView(); /* main render */
+
   void renderHistogram();
+  void renderPolar();
   void renderLineGraph();
 
+  void updateInfo();
   void prepareHistogram();
 
   virtual void resizeEvent(QResizeEvent* event);

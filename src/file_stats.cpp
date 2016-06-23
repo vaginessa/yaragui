@@ -121,4 +121,5 @@ FileStats::FileStats(const std::string& filename) : m_filename(filename), m_acce
     x /= m_fileSize;
   }
   m_totalEntropy = calcEntropy(hg);
+  m_histogram = hg;
 }

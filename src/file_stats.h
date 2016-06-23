@@ -14,6 +14,7 @@ public:
   FileStats(const std::string& filename);
   const std::vector<double>& entropy1d() const {return m_entropy1d;}
   const std::vector<double>& entropy2d() const {return m_entropy2d;}
+  const std::vector<double>& histogram() const {return m_histogram;}
   std::string filename() const {return m_filename;}
   double totalEntropy() const {return m_totalEntropy;}
   uint64_t fileSize() const {return m_fileSize;}
@@ -23,6 +24,7 @@ private:
 
   std::vector<double> m_entropy1d;
   std::vector<double> m_entropy2d; /* 256x256 */
+  std::vector<double> m_histogram;
   std::string m_filename;
   double m_totalEntropy;
   uint64_t m_fileSize;

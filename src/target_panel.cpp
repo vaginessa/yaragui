@@ -17,17 +17,17 @@ TargetPanel::TargetPanel(QWidget* parent)
 
   connect(m_ui.slider, SIGNAL(valueChanged(int)), this, SLOT(handleSlider()));
 
-  m_lineGraphButton = tb->addAction("Line");
+  m_lineGraphButton = tb->addAction("1D Entropy");
   connect(m_lineGraphButton, SIGNAL(triggered()), this, SLOT(showLineGraph()));
-  m_lineGraphButton->setIcon(QIcon("res/glyphicons-41-stats.png"));
+  m_lineGraphButton->setIcon(QIcon("res/glyphicons-460-header.png"));
 
-  m_histogramButton = tb->addAction("Histogram");
+  m_histogramButton = tb->addAction("2D Entropy");
   connect(m_histogramButton, SIGNAL(triggered()), this, SLOT(showHistogram()));
-  m_histogramButton->setIcon(QIcon("res/glyphicons-42-charts.png"));
+  m_histogramButton->setIcon(QIcon("res/glyphicons-157-show-thumbnails.png"));
 
-  m_polarButton = tb->addAction("Polar");
-  connect(m_polarButton, SIGNAL(triggered()), this, SLOT(showPolar()));
-  m_polarButton->setIcon(QIcon("res/glyphicons-41-stats.png"));
+  m_barGraphButton = tb->addAction("Histogram");
+  connect(m_barGraphButton, SIGNAL(triggered()), this, SLOT(showBarGraph()));
+  m_barGraphButton->setIcon(QIcon("res/glyphicons-42-charts.png"));
 
   showLineGraph();
 }
@@ -46,7 +46,7 @@ void TargetPanel::showHistogram()
   m_viewMode = ViewModeHistogram;
   m_histogramButton->setEnabled(false);
   m_lineGraphButton->setEnabled(true);
-  m_polarButton->setEnabled(true);
+  m_barGraphButton->setEnabled(true);
   renderView();
 }
 
@@ -55,16 +55,16 @@ void TargetPanel::showLineGraph()
   m_viewMode = ViewModeLineGraph;
   m_histogramButton->setEnabled(true);
   m_lineGraphButton->setEnabled(false);
-  m_polarButton->setEnabled(true);
+  m_barGraphButton->setEnabled(true);
   renderView();
 }
 
-void TargetPanel::showPolar()
+void TargetPanel::showBarGraph()
 {
-  m_viewMode = ViewModePolar;
+  m_viewMode = ViewModeBarGraph;
   m_histogramButton->setEnabled(true);
   m_lineGraphButton->setEnabled(true);
-  m_polarButton->setEnabled(false);
+  m_barGraphButton->setEnabled(false);
   renderView();
 }
 
@@ -87,7 +87,6 @@ void TargetPanel::renderView()
   case ViewModeLineGraph:
     renderLineGraph();
     break;
-  case ViewModePolar:
   case ViewModeBarGraph:
     renderBarGraph();
     break;
@@ -100,57 +99,6 @@ void TargetPanel::renderHistogram()
 {
   /* already computed in prepareHistogram() */
   m_ui.leftGraph->setPixmap(m_histogramPixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-}
-
-void TargetPanel::renderPolar()
-{
-  QPixmap pixmap(m_ui.leftGraph->size());
-  QPainter painter(&pixmap);
-
-  painter.setRenderHints(QPainter::Antialiasing);
-  painter.fillRect(pixmap.rect(), QColor(255, 255, 255));
-
-  const double width = pixmap.width();
-  const double height = pixmap.height();
-
-  const double cx = width * 0.5;
-  const double cy = height * 0.5;
-
-  const double rad = cx < cy ? cx : cy;
-
-  /* get graph limits for scaling */
-  std::vector<double> data = m_stats->entropy1d();
-  double dataMin = std::numeric_limits<double>::max();
-  double dataMax = -std::numeric_limits<double>::max();
-  for(size_t i = 0; i < data.size(); ++i) {
-      dataMin = std::min(dataMin, data[i]);
-      dataMax = std::max(dataMax, data[i]);
-  }
-
-  /* use this pen for drawing the graph edge */
-  QPen graphPen = painter.pen();
-  graphPen.setWidthF(1.0);
-  graphPen.setColor(QColor(0, 0, 0));
-  painter.setPen(graphPen);
-
-  /* filled slightly transparent so you can see the grid underneath */
-  painter.setBrush(QColor(0, 0, 255, 128));
-
-  /* setup polyon points */
-  std::vector<QPointF> polygon;
-  for(size_t i = 0; i < data.size(); ++i) {
-      double fi = i / double(data.size() - 1);
-      double norm = (data[i] - dataMin) / (dataMax - dataMin);
-      const double theta = fi * 3.14159 * 2.0;
-      const double xpos = cx + cos(theta) * norm * rad;
-      const double ypos = cy + sin(theta) * norm * rad;
-      polygon.push_back(QPointF(xpos, ypos));
-  }
-
-  /* draw graph as a filled polygon */
-  painter.drawPolygon(&polygon[0], polygon.size());
-
-  m_ui.leftGraph->setPixmap(pixmap);
 }
 
 void TargetPanel::renderLineGraph()
@@ -175,29 +123,32 @@ void TargetPanel::renderLineGraph()
 
   /* draw horizontal grid */
   for(int i = 0; i < gridDensity; ++i) {
-      double fi = i / double(gridDensity - 1);
-      double ypos = fi;
-      ypos = 1 - pow(1 - ypos, 1 + sliderValue() * 8);
-      ypos *= height;
-      painter.drawLine(0, ypos, width, ypos);
+    double fi = i / double(gridDensity - 1);
+    double ypos = fi;
+    ypos = 1 - pow(1 - ypos, 1 + sliderValue() * 8);
+    ypos *= height;
+    painter.drawLine(0, ypos, width, ypos);
   }
 
   /* draw vertical grid */
   double aspectRatio = pixmap.width() / double(pixmap.height());
   int gridDenistyVertical = gridDensity * aspectRatio;
   for(int i = 0; i < gridDenistyVertical; ++i) {
-      double fi = i / double(gridDenistyVertical - 1);
-      double xpos = fi * width;
-      painter.drawLine(xpos, 0, xpos, height);
+    double fi = i / double(gridDenistyVertical - 1);
+    double xpos = fi * width;
+    painter.drawLine(xpos, 0, xpos, height);
   }
+
+  double dashHeight = height * (1 - heightPercent);
+  painter.drawLine(0, dashHeight, width, dashHeight);
 
   /* get graph limits for scaling */
   std::vector<double> data = m_stats->entropy1d();
   double dataMin = std::numeric_limits<double>::max();
   double dataMax = -std::numeric_limits<double>::max();
   for(size_t i = 0; i < data.size(); ++i) {
-      dataMin = std::min(dataMin, data[i]);
-      dataMax = std::max(dataMax, data[i]);
+    dataMin = std::min(dataMin, data[i]);
+    dataMax = std::max(dataMax, data[i]);
   }
 
   /* use this pen for drawing the graph edge */
@@ -207,18 +158,18 @@ void TargetPanel::renderLineGraph()
   painter.setPen(graphPen);
 
   /* filled slightly transparent so you can see the grid underneath */
-  painter.setBrush(QColor(0, 0, 255, 128));
+  painter.setBrush(QColor(0, 0, 0, 64));
 
   /* setup polyon points */
   std::vector<QPointF> polygon;
   polygon.push_back(QPointF(0, height));
   for(size_t i = 0; i < data.size(); ++i) {
-      double fi = i / double(data.size() - 1);
-      double norm = data[i] / dataMax;
-      double ypos = 1 - norm;
-      ypos = 1 - pow(1 - ypos, 1 + sliderValue() * 8);
-      ypos = 1 - (1 - ypos) * heightPercent;
-      polygon.push_back(QPointF(fi * width, ypos * height));
+    double fi = i / double(data.size() - 1);
+    double norm = data[i] / dataMax;
+    double ypos = 1 - norm;
+    ypos = 1 - pow(1 - ypos, 1 + sliderValue() * 8);
+    ypos = 1 - (1 - ypos) * heightPercent;
+    polygon.push_back(QPointF(fi * width, ypos * height));
   }
 
   /* draw graph as a filled polygon */
@@ -255,23 +206,23 @@ void TargetPanel::renderBarGraph()
 
   /* draw horizontal grid */
   for(int i = 0; i < gridDensity; ++i) {
-      double fi = i / double(gridDensity - 1);
-      double ypos = fi;
-      //ypos = 1 - pow(1 - ypos, 1 - sliderValue() * heightPercent);
-      ypos = ypos - 0.5;
-      double sgn = GfxMath::sign(ypos);
-      ypos = pow(fabs(ypos) * 2.0, sliderValue()) * 0.5;
-      ypos = ypos * sgn + 0.5;
-      ypos *= height;
-      painter.drawLine(0, ypos, width, ypos);
+    double fi = i / double(gridDensity - 1);
+    double ypos = fi;
+    //ypos = 1 - pow(1 - ypos, 1 - sliderValue() * heightPercent);
+    ypos = ypos - 0.5;
+    double sgn = GfxMath::sign(ypos);
+    ypos = pow(fabs(ypos), 1 - sliderValue() * heightPercent);
+    ypos = ypos * sgn + 0.5;
+    ypos *= height;
+    painter.drawLine(0, ypos, width, ypos);
   }
 
   /* draw vertical grid */
   int gridDenistyVertical = gridDensity / aspectRatio;
   for(int i = 0; i < gridDenistyVertical; ++i) {
-      double fi = i / double(gridDenistyVertical - 1);
-      double xpos = fi * width;
-      painter.drawLine(xpos, 0, xpos, height);
+    double fi = i / double(gridDenistyVertical - 1);
+    double xpos = fi * width;
+    painter.drawLine(xpos, 0, xpos, height);
   }
 
   /* get graph limits for scaling */
@@ -279,8 +230,8 @@ void TargetPanel::renderBarGraph()
   double dataMin = std::numeric_limits<double>::max();
   double dataMax = -std::numeric_limits<double>::max();
   for(size_t i = 0; i < data.size(); ++i) {
-      dataMin = std::min(dataMin, data[i]);
-      dataMax = std::max(dataMax, data[i]);
+    dataMin = std::min(dataMin, data[i]);
+    dataMax = std::max(dataMax, data[i]);
   }
 
   /* use this pen for drawing the graph edge */
@@ -291,15 +242,15 @@ void TargetPanel::renderBarGraph()
   /* setup polyon points */
   QRect rect(0, 0, 0, 0);
   for(size_t i = 0; i < data.size(); ++i) {
-      rect.setLeft(rect.right());
-      double xpos = (i + 1) / double(data.size()) * width;
-      double norm = (data[i] - dataMin * 0.5) / (dataMax - dataMin * 0.5);
-      norm = pow(norm, sliderValue());
-      double barHeight = norm * height * heightPercent;
-      rect.setRight(xpos);
-      rect.setTop((height - barHeight) * 0.5);
-      rect.setBottom((height + barHeight) * 0.5);
-      painter.fillRect(rect, QColor(255, 128, 0, 255));
+    rect.setLeft(rect.right());
+    double xpos = (i + 1) / double(data.size()) * width;
+    double norm = (data[i] - dataMin * 0.5) / (dataMax - dataMin * 0.5);
+    norm = pow(norm, 1 - sliderValue() * heightPercent);
+    double barHeight = norm * height * heightPercent;
+    rect.setRight(xpos);
+    rect.setTop((height - barHeight) * 0.5);
+    rect.setBottom((height + barHeight) * 0.5);
+    painter.fillRect(rect, QColor(128, 128, 128));
   }
 
   m_ui.leftGraph->setPixmap(pixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
@@ -312,22 +263,16 @@ void TargetPanel::updateInfo()
   }
 
   std::stringstream size;
-  size << "Size: " << m_stats->fileSize() << " bytes";
+  size << "" << m_stats->fileSize() << " bytes";
   m_ui.sizeText->setText(size.str().c_str());
 
   std::stringstream entropy;
   entropy.precision(2);
-  entropy << "Entropy: " << std::fixed << m_stats->totalEntropy() << " bits";
-  m_ui.entropyText->setText(entropy.str().c_str());
+  entropy << "" << std::fixed << m_stats->totalEntropy() << " bits";
 
   double bar = m_stats->totalEntropy() / 8 * 100;
   m_ui.progressBar->setValue(bar);
-
-  if (bar < 50) {
-    m_ui.progressBar->setFormat("Low");
-  } else {
-    m_ui.progressBar->setFormat("High");
-  }
+  m_ui.progressBar->setFormat(entropy.str().c_str());
 }
 
 int pack(double r, double g, double b)

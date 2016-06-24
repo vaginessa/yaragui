@@ -19,7 +19,7 @@ private slots:
 
   void showHistogram();
   void showLineGraph();
-  void showPolar();
+  void showBarGraph();
   void handleSlider();
 
 private:
@@ -28,14 +28,12 @@ private:
   {
     ViewModeHistogram,
     ViewModeLineGraph,
-    ViewModePolar,
     ViewModeBarGraph
   };
 
   void renderView(); /* main render */
 
   void renderHistogram();
-  void renderPolar();
   void renderLineGraph();
   void renderBarGraph();
 
@@ -52,7 +50,7 @@ private:
   ViewMode m_viewMode;
   QAction* m_histogramButton;
   QAction* m_lineGraphButton;
-  QAction* m_polarButton;
+  QAction* m_barGraphButton;
 
   std::vector<int> m_histogramBuffer;
   QPixmap m_histogramPixmap;

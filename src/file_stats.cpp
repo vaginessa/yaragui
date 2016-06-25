@@ -1,5 +1,6 @@
 #include "file_stats.h"
 #include <boost/foreach.hpp>
+#include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <math.h>
@@ -21,8 +22,13 @@ double calcEntropy(const std::vector<double>& d)
   return -h;
 }
 
-FileStats::FileStats(const std::string& filename) : m_filename(filename), m_accessError(false)
+FileStats::FileStats(const std::string& filename, const boost::atomic<bool>& abort) : m_filename(filename), m_accessError(false)
 {
+  if (abort) {
+    m_accessError = true;
+    return;
+  }
+
   std::vector<uint8_t> buffer(1024 * 1024);
   std::ifstream file(filename.c_str(), std::ios::binary);
   if (!file.is_open()) {
@@ -74,6 +80,11 @@ FileStats::FileStats(const std::string& filename) : m_filename(filename), m_acce
         shg = std::vector<double>(256);
         sampleCount = 0;
       }
+    }
+    if (abort) {
+      /* allow user to cancel long running operation */
+      m_accessError = true;
+      return;
     }
   }
 

@@ -5,6 +5,7 @@
 #include <boost/signals2.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 #include "file_stats.h"
 
 class StatsCalculator
@@ -18,6 +19,8 @@ public:
 
   boost::signals2::signal<void (FileStats::Ref stats)> onFileStats;
 
+  void reset();
+  void abort();
   void getStats(const std::string& file);
 
 private:
@@ -29,6 +32,7 @@ private:
   boost::asio::io_service& m_io;
   boost::shared_ptr<boost::thread> m_thread;
   boost::asio::io_service m_thread_io;
+  boost::atomic<bool> m_abort;
 
 };
 

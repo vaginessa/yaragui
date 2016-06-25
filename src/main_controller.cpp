@@ -2,7 +2,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
 
-MainController::MainController(int argc, char* argv[], boost::asio::io_service& io) : m_io(io), m_haveRuleset(false), m_scanning(false)
+MainController::MainController(int argc, char* argv[], boost::asio::io_service& io) : m_io(io), m_haveRuleset(false), m_scanning(false), m_statsRemaining(0)
 {
   m_settings = boost::make_shared<Settings>();
 
@@ -39,6 +39,8 @@ void MainController::handleChangeRuleset(RulesetView::Ref ruleset)
 void MainController::handleScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view)
 {
   if (!rule) {
+    /* scan of this target complete, compute stats for it */
+    m_statsRemaining++;
     m_sc->getStats(target);
   }
   m_mainWindow->addScanResult(target, rule, view);
@@ -46,14 +48,8 @@ void MainController::handleScanResult(const std::string& target, ScannerRule::Re
 
 void MainController::handleScanComplete(const std::string& error)
 {
-  if (m_ruleWindow && m_ruleWindow->isVisible()) {
-    m_ruleWindow->setRules(m_rm->getRules());
-  }
-  m_mainWindow->scanEnd();
-  if (m_ruleWindow) {
-    m_ruleWindow->setEnabled(true);
-  }
   m_scanning = false;
+  handleOperationsComplete();
 }
 
 void MainController::handleRulesUpdated()
@@ -73,7 +69,9 @@ void MainController::handleRulesUpdated()
 
 void MainController::handleFileStats(FileStats::Ref stats)
 {
+  m_statsRemaining--;
   m_mainWindow->updateFileStats(stats);
+  handleOperationsComplete();
 }
 
 void MainController::handleRequestRuleWindowOpen()
@@ -122,6 +120,24 @@ void MainController::handleAboutWindowOpen()
 void MainController::handleUserScanAbort()
 {
   m_rm->scanAbort();
+  m_sc->abort();
+}
+
+void MainController::handleOperationsComplete()
+{
+  if (m_scanning || m_statsRemaining) {
+    return; /* not done yet */
+  }
+
+  if (m_ruleWindow && m_ruleWindow->isVisible()) {
+    m_ruleWindow->setRules(m_rm->getRules());
+  }
+
+  m_mainWindow->scanEnd();
+
+  if (m_ruleWindow) {
+    m_ruleWindow->setEnabled(true);
+  }
 }
 
 void MainController::scan()
@@ -129,6 +145,7 @@ void MainController::scan()
   if (!m_targets.empty() && m_haveRuleset && !m_scanning) {
     m_scanning = true;
     m_mainWindow->scanBegin();
+    m_sc->reset();
     m_rm->scan(m_targets, m_ruleset);
     if (m_ruleWindow) {
       m_ruleWindow->setEnabled(false);

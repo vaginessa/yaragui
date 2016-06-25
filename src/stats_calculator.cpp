@@ -1,5 +1,6 @@
 #include "stats_calculator.h"
 #include <boost/make_shared.hpp>
+#include <iostream>
 
 StatsCalculator::~StatsCalculator()
 {
@@ -10,6 +11,16 @@ StatsCalculator::~StatsCalculator()
 StatsCalculator::StatsCalculator(boost::asio::io_service& io) : m_io(io)
 {
   m_thread = boost::make_shared<boost::thread>(boost::bind(&StatsCalculator::statsThread, this));
+}
+
+void StatsCalculator::reset()
+{
+  m_abort = false;
+}
+
+void StatsCalculator::abort()
+{
+  m_abort = true;
 }
 
 void StatsCalculator::getStats(const std::string& file)
@@ -26,7 +37,7 @@ void StatsCalculator::statsThread()
 void StatsCalculator::computeStats(const std::string& file)
 {
   /* in the stats thread */
-  FileStats::Ref stats = boost::make_shared<FileStats>(file);
+  FileStats::Ref stats = boost::make_shared<FileStats>(file, m_abort);
   m_io.post(boost::bind(&StatsCalculator::reportStats, this, stats));
 }
 

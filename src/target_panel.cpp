@@ -35,7 +35,14 @@ TargetPanel::TargetPanel(QWidget* parent)
 void TargetPanel::show(const std::string& filename, FileStats::Ref stats)
 {
   m_filename = filename;
-  m_stats = stats;
+
+  if (!stats || stats->accessError()) {
+    /* do not try to render failed stats */
+    m_stats = FileStats::Ref();
+  } else {
+    m_stats = stats;
+  }
+
   updateInfo();
   prepareHistogram();
   QWidget::show();
@@ -78,8 +85,18 @@ void TargetPanel::handleSlider()
 void TargetPanel::renderView()
 {
   if (!m_stats) {
+    m_ui.leftGraph->setPixmap(QPixmap());
+    m_ui.leftGraph->setText("No data available");
+    m_ui.slider->hide();
+    m_ui.progressBar->hide();
+    m_ui.sizeText->hide();
     return;
   }
+
+  m_ui.leftGraph->setText("");
+  m_ui.slider->show();
+  m_ui.progressBar->show();
+  m_ui.sizeText->show();
 
   switch (m_viewMode) {
   case ViewModeHistogram:

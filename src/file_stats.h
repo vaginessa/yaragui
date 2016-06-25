@@ -2,6 +2,7 @@
 #define __FILE_STATS_H__
 
 #include <boost/shared_ptr.hpp>
+#include <boost/atomic.hpp>
 #include <vector>
 #include <stdint.h>
 
@@ -11,7 +12,7 @@ public:
 
   typedef boost::shared_ptr<FileStats> Ref;
 
-  FileStats(const std::string& filename);
+  FileStats(const std::string& filename, const boost::atomic<bool>& abort);
   const std::vector<double>& entropy1d() const {return m_entropy1d;}
   const std::vector<double>& entropy2d() const {return m_entropy2d;}
   const std::vector<double>& histogram() const {return m_histogram;}

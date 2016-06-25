@@ -280,12 +280,11 @@ void MainWindow::treeItemSelectionChanged()
 {
   QList<QTreeWidgetItem *> items = m_ui.tree->selectedItems();
 
+  m_copyMenuAction->setEnabled(items.size());
+
   if (!items.size()) {
-    m_copyMenuAction->setEnabled(false);
     return;
   }
-
-  m_copyMenuAction->setEnabled(true);
 
   QList<int> sizes = m_ui.splitter->sizes();
   int maxSize = std::max(sizes[1], sizes[2]);

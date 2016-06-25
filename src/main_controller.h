@@ -38,6 +38,7 @@ private:
   void handleAboutWindowOpen();
   void handleUserScanAbort();
 
+  void handleOperationsComplete();
   void scan();
   void updateCompileWindows(const RulesetView::Ref& rule);
 
@@ -55,6 +56,7 @@ private:
   RulesetView::Ref m_ruleset;
   bool m_haveRuleset;
   bool m_scanning;
+  int m_statsRemaining;
 
 };
 

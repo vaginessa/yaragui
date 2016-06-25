@@ -292,6 +292,7 @@ void MainWindow::treeItemSelectionChanged()
     /* first display, set default view size */
     QSize targetSize = m_targetPanel->maximumSize(), matchSize = m_matchPanel->maximumSize();
     maxSize = std::max(targetSize.height(), matchSize.height());
+    maxSize = 200;
   }
   sizes[1] = maxSize;
   sizes[2] = maxSize;

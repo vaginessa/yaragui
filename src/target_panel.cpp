@@ -180,7 +180,10 @@ void TargetPanel::renderLineGraph()
   polygon.push_back(QPointF(0, height));
   for(size_t i = 0; i < data.size(); ++i) {
     double fi = i / double(data.size() - 1);
-    double norm = data[i] / dataMax;
+    double norm = 0;
+    if (dataMax != 0) {
+      norm = data[i] / dataMax;
+    }
     double ypos = 1 - norm;
     ypos = 1 - pow(1 - ypos, 1 + sliderValue() * 8);
     ypos = 1 - (1 - ypos) * heightPercent;
@@ -223,7 +226,6 @@ void TargetPanel::renderBarGraph()
   for(int i = 0; i < gridDensity; ++i) {
     double fi = i / double(gridDensity - 1);
     double ypos = fi;
-    //ypos = 1 - pow(1 - ypos, 1 - sliderValue() * heightPercent);
     ypos = ypos - 0.5;
     double sgn = GfxMath::sign(ypos);
     ypos = pow(fabs(ypos), 1 - sliderValue() * heightPercent * 0.5);
@@ -256,17 +258,40 @@ void TargetPanel::renderBarGraph()
 
   /* setup polyon points */
   QRect rect(0, 0, 0, 0);
+  QList<QPoint> top_polygon;
+  QList<QPoint> low_polygon;
+  top_polygon.push_back(rect.topRight());
+  low_polygon.push_back(rect.bottomRight());
   for(size_t i = 0; i < data.size(); ++i) {
     rect.setLeft(rect.right());
     double xpos = (i + 1) / double(data.size()) * width;
-    double norm = (data[i] - dataMin * 0.5) / (dataMax - dataMin * 0.5);
+    double norm = 0;
+    if (dataMax != 0) {
+      norm = data[i] / dataMax;
+    }
     norm = pow(norm, 1 - sliderValue() * heightPercent * 0.5);
     double barHeight = norm * height * heightPercent;
     rect.setRight(xpos);
     rect.setTop((height - barHeight) * 0.5);
     rect.setBottom((height + barHeight) * 0.5);
-    painter.fillRect(rect, QColor(128, 128, 128));
+    if (i & 1) {
+      painter.fillRect(rect, QColor(128, 128, 128));
+    } else {
+      painter.fillRect(rect, QColor(64, 64, 64));
+    }
+    //top_polygon.push_back(rect.topLeft());
+    //top_polygon.push_back(rect.topRight());
+    //low_polygon.push_back(rect.bottomLeft());
+    //low_polygon.push_back(rect.bottomRight());
   }
+
+  for (int i = 0; i < low_polygon.size(); ++i) {
+    const int j = low_polygon.size() - i - 1;
+    top_polygon.push_back(low_polygon[j]);
+  }
+
+  //painter.setBrush(QColor(128, 128, 128, 128));
+  //painter.drawPolygon(&top_polygon[0], top_polygon.size());
 
   m_ui.leftGraph->setPixmap(pixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
@@ -283,9 +308,11 @@ void TargetPanel::updateInfo()
 
   std::stringstream entropy;
   entropy.precision(2);
-  entropy << "" << std::fixed << m_stats->totalEntropy() << " bits";
+  double totalEntropy = m_stats->totalEntropy();
+  totalEntropy = totalEntropy == 0 ? 0 : totalEntropy;
+  entropy << "" << std::fixed << totalEntropy << " bits";
 
-  double bar = m_stats->totalEntropy() / 8 * 100;
+  double bar = totalEntropy / 8 * 100;
   m_ui.progressBar->setValue(bar);
   m_ui.progressBar->setFormat(entropy.str().c_str());
 }

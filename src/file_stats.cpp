@@ -123,8 +123,10 @@ FileStats::FileStats(const std::string& filename, const boost::atomic<bool>& abo
   }
 
   /* normalize histogram */
-  BOOST_FOREACH(double& x, m_entropy2d) {
-    x /= maxEntropy;
+  if (maxEntropy > 0) {
+    BOOST_FOREACH(double& x, m_entropy2d) {
+      x /= maxEntropy;
+    }
   }
 
   /* entropy of the whole file */

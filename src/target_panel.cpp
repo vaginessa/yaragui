@@ -103,11 +103,11 @@ void TargetPanel::renderHistogram()
 
 void TargetPanel::renderLineGraph()
 {
-  const int gridDensity = 6;
-  const double heightPercent = 0.95; /* dont use the entire graph height */
-
   QPixmap pixmap(m_ui.leftGraph->size());
   QPainter painter(&pixmap);
+
+  const int gridDensity = pixmap.width() / 64.0;
+  const double heightPercent = 0.95; /* dont use the entire graph height */
 
   painter.setRenderHints(QPainter::Antialiasing);
   painter.fillRect(pixmap.rect(), QColor(255, 255, 255));
@@ -138,9 +138,6 @@ void TargetPanel::renderLineGraph()
     double xpos = fi * width;
     painter.drawLine(xpos, 0, xpos, height);
   }
-
-  double dashHeight = height * (1 - heightPercent);
-  painter.drawLine(0, dashHeight, width, dashHeight);
 
   /* get graph limits for scaling */
   std::vector<double> data = m_stats->entropy1d();
@@ -211,7 +208,7 @@ void TargetPanel::renderBarGraph()
     //ypos = 1 - pow(1 - ypos, 1 - sliderValue() * heightPercent);
     ypos = ypos - 0.5;
     double sgn = GfxMath::sign(ypos);
-    ypos = pow(fabs(ypos), 1 - sliderValue() * heightPercent);
+    ypos = pow(fabs(ypos), 1 - sliderValue() * heightPercent * 0.5);
     ypos = ypos * sgn + 0.5;
     ypos *= height;
     painter.drawLine(0, ypos, width, ypos);
@@ -245,7 +242,7 @@ void TargetPanel::renderBarGraph()
     rect.setLeft(rect.right());
     double xpos = (i + 1) / double(data.size()) * width;
     double norm = (data[i] - dataMin * 0.5) / (dataMax - dataMin * 0.5);
-    norm = pow(norm, 1 - sliderValue() * heightPercent);
+    norm = pow(norm, 1 - sliderValue() * heightPercent * 0.5);
     double barHeight = norm * height * heightPercent;
     rect.setRight(xpos);
     rect.setTop((height - barHeight) * 0.5);

@@ -16,5 +16,8 @@
         <file>glyphicons-67-tags.png</file>
         <file>glyphicons-120-table.png</file>
         <file>glyphicons-200-ban-circle.png</file>
+        <file>glyphicons-42-charts.png</file>
+        <file>glyphicons-157-show-thumbnails.png</file>
+        <file>glyphicons-460-header.png</file>
     </qresource>
 </RCC>

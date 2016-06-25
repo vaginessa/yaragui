@@ -59,7 +59,7 @@ void Scanner::threadRulesHash(const std::string& file, RulesHashCallback callbac
 {
   std::ifstream input(file.c_str(), std::ifstream::binary);
   if (!input.is_open()) {
-    m_io.post(boost::bind(callback, std::string()));
+    m_caller.post(boost::bind(callback, std::string()));
     return;
   }
 
@@ -68,7 +68,7 @@ void Scanner::threadRulesHash(const std::string& file, RulesHashCallback callbac
   while (!input.eof()) {
     input.read(&buffer[0], buffer.size());
     if (input.bad()) {
-      m_io.post(boost::bind(callback, std::string()));
+      m_caller.post(boost::bind(callback, std::string()));
       return;
     }
     hash.addData(&buffer[0], input.gcount());
@@ -76,7 +76,7 @@ void Scanner::threadRulesHash(const std::string& file, RulesHashCallback callbac
 
   QByteArray hashBytes = hash.result().toHex();
   std::string hashString(hashBytes.constData(), hashBytes.length());
-  m_io.post(boost::bind(callback, hashString));
+  m_caller.post(boost::bind(callback, hashString));
 }
 
 void Scanner::threadRulesCompile(const std::string& file, const std::string& ns, RulesCompileCallback callback)
@@ -271,7 +271,7 @@ std::string Scanner::yaraErrorToString(const int code)
   case ERROR_SUCCESS:
     return "Everything went fine.";
   case ERROR_INSUFICIENT_MEMORY:
-    return "Insuficient memory to complete the operation.";
+    return "Insufficient memory to complete the operation.";
   case ERROR_COULD_NOT_OPEN_FILE:
     return "File could not be opened.";
   case ERROR_COULD_NOT_MAP_FILE:

@@ -19,15 +19,15 @@ TargetPanel::TargetPanel(QWidget* parent)
 
   m_lineGraphButton = tb->addAction("1D Entropy");
   connect(m_lineGraphButton, SIGNAL(triggered()), this, SLOT(showLineGraph()));
-  m_lineGraphButton->setIcon(QIcon("res/glyphicons-460-header.png"));
+  m_lineGraphButton->setIcon(QIcon(":/glyphicons-460-header.png"));
 
   m_histogramButton = tb->addAction("2D Entropy");
   connect(m_histogramButton, SIGNAL(triggered()), this, SLOT(showHistogram()));
-  m_histogramButton->setIcon(QIcon("res/glyphicons-157-show-thumbnails.png"));
+  m_histogramButton->setIcon(QIcon(":/glyphicons-157-show-thumbnails.png"));
 
   m_barGraphButton = tb->addAction("Histogram");
   connect(m_barGraphButton, SIGNAL(triggered()), this, SLOT(showBarGraph()));
-  m_barGraphButton->setIcon(QIcon("res/glyphicons-42-charts.png"));
+  m_barGraphButton->setIcon(QIcon(":/glyphicons-42-charts.png"));
 
   showLineGraph();
 }

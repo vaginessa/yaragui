@@ -12,6 +12,11 @@ CompileWindow::CompileWindow(RulesetView::Ref rule)
   show();
 }
 
+void CompileWindow::setCompilerBusy(bool state)
+{
+  m_ui.compileButton->setEnabled(!state);
+}
+
 RulesetView::Ref CompileWindow::rule()
 {
   return m_rule;

@@ -65,6 +65,10 @@ void MainController::handleRulesUpdated()
   BOOST_FOREACH(RulesetView::Ref rule, rules) {
     updateCompileWindows(rule);
   }
+
+  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
+    window->setCompilerBusy(false);
+  }
 }
 
 void MainController::handleFileStats(FileStats::Ref stats)
@@ -95,11 +99,14 @@ void MainController::handleRuleWindowCompile(RulesetView::Ref view)
   CompileWindow::Ref compileWindow = boost::make_shared<CompileWindow>(view);
   compileWindow->onRecompileRule.connect(boost::bind(&MainController::handleCompileWindowRecompile, this, _1));
   m_compileWindows.push_back(compileWindow);
-  m_rm->compile(view);
+  handleCompileWindowRecompile(view);
 }
 
 void MainController::handleCompileWindowRecompile(RulesetView::Ref view)
 {
+  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
+    window->setCompilerBusy(true);
+  }
   m_rm->compile(view);
 }
 

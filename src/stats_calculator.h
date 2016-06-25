@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include "file_stats.h"
 
 class StatsCalculator
@@ -21,7 +22,13 @@ public:
 
 private:
 
+  void statsThread();
+  void computeStats(const std::string& file);
+  void reportStats(FileStats::Ref stats);
+
   boost::asio::io_service& m_io;
+  boost::shared_ptr<boost::thread> m_thread;
+  boost::asio::io_service m_thread_io;
 
 };
 

@@ -13,7 +13,9 @@ public:
 
   TargetPanel(QWidget* parent);
 
-  void show(FileStats::Ref stats);
+  void show(const std::string& filename, FileStats::Ref stats);
+
+  std::string filename() const {return m_filename;}
 
 private slots:
 
@@ -45,6 +47,7 @@ private:
   virtual void resizeEvent(QResizeEvent* event);
 
   Ui::TargetPanel m_ui;
+  std::string m_filename;
   FileStats::Ref m_stats;
 
   ViewMode m_viewMode;

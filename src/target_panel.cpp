@@ -32,8 +32,9 @@ TargetPanel::TargetPanel(QWidget* parent)
   showLineGraph();
 }
 
-void TargetPanel::show(FileStats::Ref stats)
+void TargetPanel::show(const std::string& filename, FileStats::Ref stats)
 {
+  m_filename = filename;
   m_stats = stats;
   updateInfo();
   prepareHistogram();

@@ -7,6 +7,7 @@
 #include "ruleset_view.h"
 #include "scanner_rule.h"
 #include "file_stats.h"
+#include "settings.h"
 #include <boost/signals2.hpp>
 #include <boost/asio/io_service.hpp>
 #include <QtCore/QSignalMapper>
@@ -21,7 +22,8 @@ class MainWindow : public QMainWindow
 
 public:
 
-  MainWindow(boost::asio::io_service& io);
+  ~MainWindow();
+  MainWindow(boost::asio::io_service& io, boost::shared_ptr<Settings> settings);
 
   boost::signals2::signal<void (const std::vector<std::string>& files)> onChangeTargets;
   boost::signals2::signal<void (RulesetView::Ref ruleset)> onChangeRuleset;
@@ -57,6 +59,7 @@ private:
   void closeEvent(QCloseEvent *event);
 
   boost::asio::io_service& m_io;
+  boost::shared_ptr<Settings> m_settings;
 
   Ui::MainWindow m_ui;
   QLabel* m_status;

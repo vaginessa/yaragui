@@ -3,6 +3,7 @@
 
 #include "ui_rule_window.h"
 #include "ruleset_view.h"
+#include "settings.h"
 #include <boost/signals2.hpp>
 #include <boost/optional.hpp>
 
@@ -12,7 +13,8 @@ class RuleWindow : public QMainWindow
 
 public:
 
-  RuleWindow();
+  ~RuleWindow();
+  RuleWindow(boost::shared_ptr<Settings> settings);
 
   boost::signals2::signal<void (const std::vector<RulesetView::Ref>& rules)> onSaveRules;
   boost::signals2::signal<void (RulesetView::Ref view)> onCompileRule;
@@ -41,6 +43,7 @@ private:
 
   void keyPressEvent(QKeyEvent *event);
 
+  boost::shared_ptr<Settings> m_settings;
   Ui::RuleWindow m_ui;
 
   std::vector<RulesetView::Ref> m_rules;

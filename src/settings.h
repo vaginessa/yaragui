@@ -2,6 +2,7 @@
 #define __SETTINGS_H__
 
 #include "ruleset.h"
+#include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <vector>
 
@@ -16,6 +17,12 @@ public:
 
   std::vector<Ruleset::Ref> getRules() const;
   void setRules(const std::vector<Ruleset::Ref>& rules);
+
+  std::string getMainWindowGeometry() const;
+  void setMainWindowGeometry(const std::string& state);
+
+  std::string getRuleWindowGeometry() const;
+  void setRuleWindowGeoemtry(const std::string& state);
 
 private:
 

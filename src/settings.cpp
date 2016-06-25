@@ -52,3 +52,23 @@ void Settings::setRules(const std::vector<Ruleset::Ref>& rules)
   m_tree.put_child("rules", tree);
   saveToDisk();
 }
+
+std::string Settings::getMainWindowGeometry() const
+{
+  return m_tree.get<std::string>("geometry.main_window", "");
+}
+
+void Settings::setMainWindowGeometry(const std::string& state)
+{
+  m_tree.put("geometry.main_window", state);
+}
+
+std::string Settings::getRuleWindowGeometry() const
+{
+  return m_tree.get<std::string>("geometry.rule_window", "");
+}
+
+void Settings::setRuleWindowGeoemtry(const std::string& state)
+{
+  m_tree.put("geometry.rule_window", state);
+}

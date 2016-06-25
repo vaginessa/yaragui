@@ -11,7 +11,7 @@ class AboutWindow : public QMainWindow
 
 public:
 
-  AboutWindow(boost::asio::io_service& io);
+  AboutWindow(boost::asio::io_service& io, const QRect& parentGeometry);
 
 private:
 

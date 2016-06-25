@@ -2,6 +2,7 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/assign.hpp>
+#include <iostream>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtGui/QDragEnterEvent>
@@ -9,11 +10,24 @@
 #include <QtGui/QClipboard>
 #include <QtCore/QMimeData>
 
-MainWindow::MainWindow(boost::asio::io_service& io) : m_io(io)
+MainWindow::~MainWindow()
+{
+  if (!isMaximized()) {
+    QByteArray state = saveGeometry();
+    QString encodedState(state.toBase64());
+    m_settings->setMainWindowGeometry(encodedState.toStdString());
+  }
+}
+
+MainWindow::MainWindow(boost::asio::io_service& io, boost::shared_ptr<Settings> settings) : m_io(io), m_settings(settings)
 {
   m_ui.setupUi(this);
   setAcceptDrops(true); /* enable drag and drop */
   setWindowIcon(QIcon(":/yaragui.png"));
+
+  /* load window state */
+  QByteArray windowState = QByteArray::fromStdString(m_settings->getMainWindowGeometry());
+  restoreGeometry(QByteArray::fromBase64(windowState));
 
   QMenu* menu = new QMenu(this);
   m_ui.targetButton->setMenu(menu);
@@ -272,6 +286,11 @@ void MainWindow::treeItemSelectionChanged()
 
   QList<int> sizes = m_ui.splitter->sizes();
   int maxSize = std::max(sizes[1], sizes[2]);
+  if (!m_targetPanel->isVisible() && !m_matchPanel->isVisible()) {
+    /* first display, set default view size */
+    QSize targetSize = m_targetPanel->maximumSize(), matchSize = m_matchPanel->maximumSize();
+    maxSize = std::max(targetSize.height(), matchSize.height());
+  }
   sizes[1] = maxSize;
   sizes[2] = maxSize;
 

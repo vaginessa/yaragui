@@ -9,10 +9,14 @@
 
 using namespace GfxMath;
 
-AboutWindow::AboutWindow(boost::asio::io_service& io) : m_frameIndex(0)
+AboutWindow::AboutWindow(boost::asio::io_service& io, const QRect& parentGeometry) : m_frameIndex(0)
 {
   m_ui.setupUi(this);
   setWindowIcon(QIcon(":/yaragui.png"));
+
+  QRect selfGeometry = geometry();
+  selfGeometry.moveCenter(parentGeometry.center());
+  setGeometry(selfGeometry);
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));

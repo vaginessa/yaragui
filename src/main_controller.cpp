@@ -14,7 +14,7 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_sc = boost::make_shared<StatsCalculator>(boost::ref(io));
   m_sc->onFileStats.connect(boost::bind(&MainController::handleFileStats, this, _1));
 
-  m_mainWindow = boost::make_shared<MainWindow>(boost::ref(io));
+  m_mainWindow = boost::make_shared<MainWindow>(boost::ref(io), m_settings);
   m_mainWindow->onChangeTargets.connect(boost::bind(&MainController::handleChangeTargets, this, _1));
   m_mainWindow->onChangeRuleset.connect(boost::bind(&MainController::handleChangeRuleset, this, _1));
   m_mainWindow->onRequestRuleWindowOpen.connect(boost::bind(&MainController::handleRequestRuleWindowOpen, this));
@@ -79,7 +79,7 @@ void MainController::handleRequestRuleWindowOpen()
     return;
   }
 
-  m_ruleWindow = boost::make_shared<RuleWindow>();
+  m_ruleWindow = boost::make_shared<RuleWindow>(m_settings);
   m_ruleWindow->onSaveRules.connect(boost::bind(&MainController::handleRuleWindowSave, this, _1));
   m_ruleWindow->onCompileRule.connect(boost::bind(&MainController::handleRuleWindowCompile, this, _1));
   m_ruleWindow->setRules(m_rm->getRules());
@@ -108,7 +108,7 @@ void MainController::handleAboutWindowOpen()
   if (m_aboutWindow && m_aboutWindow->isVisible()) {
     m_aboutWindow->raise();
   } else {
-    m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io));
+    m_aboutWindow = boost::make_shared<AboutWindow>(boost::ref(m_io), m_mainWindow->geometry());
   }
 }
 
@@ -121,8 +121,8 @@ void MainController::scan()
 {
   if (!m_targets.empty() && m_haveRuleset && !m_scanning) {
     m_scanning = true;
-    m_rm->scan(m_targets, m_ruleset);
     m_mainWindow->scanBegin();
+    m_rm->scan(m_targets, m_ruleset);
     if (m_ruleWindow) {
       m_ruleWindow->setEnabled(false);
     }

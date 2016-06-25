@@ -10,11 +10,24 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
-RuleWindow::RuleWindow()
+RuleWindow::~RuleWindow()
+{
+  if (!isMaximized()) {
+    QByteArray state = saveGeometry();
+    QString encodedState(state.toBase64());
+    m_settings->setRuleWindowGeoemtry(encodedState.toStdString());
+  }
+}
+
+RuleWindow::RuleWindow(boost::shared_ptr<Settings> settings) : m_settings(settings)
 {
   m_ui.setupUi(this);
   setAcceptDrops(true); /* enable drag and drop */
   setWindowIcon(QIcon(":/yaragui.png"));
+
+  /* load window state */
+  QByteArray windowState = QByteArray::fromStdString(m_settings->getRuleWindowGeometry());
+  restoreGeometry(QByteArray::fromBase64(windowState));
 
   connect(m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(handleButtonClicked(QAbstractButton*)));
 

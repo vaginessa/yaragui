@@ -10,6 +10,11 @@
 #include <QtGui/QClipboard>
 #include <QtCore/QMimeData>
 
+#ifdef WIN32
+  #undef min
+  #undef max
+#endif
+
 MainWindow::~MainWindow()
 {
   if (!isMaximized()) {

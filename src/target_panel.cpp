@@ -173,7 +173,7 @@ void TargetPanel::renderLineGraph()
   painter.setPen(graphPen);
 
   /* filled slightly transparent so you can see the grid underneath */
-  painter.setBrush(QColor(0, 0, 0, 64));
+  painter.setBrush(QColor(255, 128, 0, 128));
 
   /* setup polyon points */
   std::vector<QPointF> polygon;
@@ -274,15 +274,11 @@ void TargetPanel::renderBarGraph()
     rect.setRight(xpos);
     rect.setTop((height - barHeight) * 0.5);
     rect.setBottom((height + barHeight) * 0.5);
-    if (i & 1) {
-      painter.fillRect(rect, QColor(128, 128, 128));
-    } else {
-      painter.fillRect(rect, QColor(64, 64, 64));
-    }
-    //top_polygon.push_back(rect.topLeft());
-    //top_polygon.push_back(rect.topRight());
-    //low_polygon.push_back(rect.bottomLeft());
-    //low_polygon.push_back(rect.bottomRight());
+    //painter.fillRect(rect, QColor(255, 128, 0));
+    top_polygon.push_back(rect.topLeft());
+    top_polygon.push_back(rect.topRight());
+    low_polygon.push_back(rect.bottomLeft());
+    low_polygon.push_back(rect.bottomRight());
   }
 
   for (int i = 0; i < low_polygon.size(); ++i) {
@@ -290,8 +286,8 @@ void TargetPanel::renderBarGraph()
     top_polygon.push_back(low_polygon[j]);
   }
 
-  //painter.setBrush(QColor(128, 128, 128, 128));
-  //painter.drawPolygon(&top_polygon[0], top_polygon.size());
+  painter.setBrush(QColor(255, 128, 0, 128));
+  painter.drawPolygon(&top_polygon[0], top_polygon.size());
 
   m_ui.leftGraph->setPixmap(pixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }

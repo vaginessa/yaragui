@@ -257,11 +257,11 @@ void TargetPanel::renderBarGraph()
   painter.setPen(graphPen);
 
   /* setup polyon points */
-  QRect rect(0, 0, 0, 0);
-  QList<QPoint> top_polygon;
-  QList<QPoint> low_polygon;
-  top_polygon.push_back(rect.topRight());
-  low_polygon.push_back(rect.bottomRight());
+  QRectF rect(0, 0, 0, 0);
+  std::vector<QPointF> top_polygon;
+  std::vector<QPointF> low_polygon;
+  //top_polygon.push_back(rect.topRight());
+  //low_polygon.push_back(rect.bottomRight());
   for(size_t i = 0; i < data.size(); ++i) {
     rect.setLeft(rect.right());
     double xpos = (i + 1) / double(data.size()) * width;

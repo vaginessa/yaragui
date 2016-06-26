@@ -286,7 +286,7 @@ void TargetPanel::renderBarGraph()
     top_polygon.push_back(low_polygon[j]);
   }
 
-  painter.setBrush(QColor(255, 128, 0, 128));
+  painter.setBrush(QColor(128, 128, 255, 128));
   painter.drawPolygon(&top_polygon[0], top_polygon.size());
 
   m_ui.leftGraph->setPixmap(pixmap.scaled(m_ui.leftGraph->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));

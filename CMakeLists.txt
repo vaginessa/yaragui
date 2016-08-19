@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # where is yara?
-set(YaraPath ./yara-3.4.0)
+set(YaraPath ./yara-3.5.0)
 include_directories(${YaraPath}/libyara/include)
 link_directories(${YaraPath}/libyara/.libs)
 

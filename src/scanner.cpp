@@ -110,7 +110,8 @@ void Scanner::threadRulesCompile(const std::string& file, const std::string& ns,
   }
 
   yr_compiler_set_callback(compiler, yaraCompilerCallback, &result);
-  int errorCount = yr_compiler_add_file(compiler, fd, ns.c_str(), file.c_str());
+  const char* nsOrNull = ns.empty() ? 0 : ns.c_str(); /* yara crashes if you pass an empty string */
+  int errorCount = yr_compiler_add_file(compiler, fd, nsOrNull, file.c_str());
   fclose(fd);
 
   if (errorCount) {

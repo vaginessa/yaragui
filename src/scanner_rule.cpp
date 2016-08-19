@@ -54,7 +54,7 @@ ScannerRule::ScannerRule(YR_RULE* rule)
     YR_MATCH* match = 0;
     yr_string_matches_foreach(string, match) {
       Match::Ref mref = boost::make_shared<Match>();
-      mref->data = std::vector<uint8_t>(match->data, match->data + match->length);
+      mref->data = std::vector<uint8_t>(match->data, match->data + match->data_length);
       mref->base = match->base;
       mref->offset = match->offset;
       sref->matches.push_back(mref);

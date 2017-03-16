@@ -28,7 +28,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io, const QRect& parentGeometr
 
   std::stringstream info;
   info << "<p align=\"center\">";
-  info << "<b>YARA GUI 0.3</b><br>";
+  info << "<b>YARA GUI 0.4 BETA</b><br>";
   info << "Built on " << __DATE__ << " at " << __TIME__ << "<br><br>";
   info << "Written in C++ by dila<br>";
   info << "For updates see:<br>";
@@ -70,7 +70,6 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
 
   if (frame->frameNumber == 0) {
     m_ui.gfx->setPixmap(pixmap);
-    //setFixedSize(width(), height());
     setFixedWidth(width());
     show();
   }
@@ -115,9 +114,9 @@ mat3 xrot(float t)
 
 mat3 yrot(float t)
 {
-  return mat3(cos(t), 0.0, -sin(t),
+  return mat3(cos(t), 0.0, sin(t),
               0.0, 1.0, 0.0,
-              sin(t), 0.0, cos(t));
+              -sin(t), 0.0, cos(t));
 }
 
 mat3 zrot(float t)
@@ -127,30 +126,49 @@ mat3 zrot(float t)
               0.0, 0.0, 1.0);
 }
 
+float sdBoxXY( vec3 p, vec3 b )
+{
+  vec2 d = abs(p.permute(0, 1)) - b.permute(0, 1);
+  vec2 k = vec2(max(d[0], 0), max(d[1], 0));
+  return min(max(d[0],d[1]),0.0) + length(k);
+}
+
+float smin( float a, float b, float k )
+{
+  float res = exp( -k*a ) + exp( -k*b );
+  return -log( res )/k;
+}
+
 float udRoundBox( vec3 p, vec3 b, float r )
 {
   return length(max(abs(p)-b,vec3(0.0)))-r;
 }
 
-float tube( vec3 p, float b )
-{
-  return length(p.permute(0,1)) - b;
-}
-
 float map(vec3 p)
 {
-	vec3 q = (fract(p/2.5) - 0.5) * 2.5;
-  float tr = 0.25;
-  float d = tube(q, tr);
-  d = min(d, tube(q.permute(1,2,0), tr));
-  d = min(d, tube(q.permute(0,2,1), tr));
-  d = min(d, udRoundBox(q, vec3(0.45), 0.2));
-  return d;
+  float k = 0.5 * 2.0;
+  vec3 q = (fract((p - vec3(0.2, 0.0, 0.2))/ k) - 0.5) * k;
+  vec3 s = vec3(q[0], p[1], q[2]);
+  float d = udRoundBox(s, vec3(0.1, 1.0, 0.1), 0.05);
+
+  k = 0.5;
+  q = (fract(p / k) - 0.5) * k;
+  s = vec3(q[0], fabs(p[1]) - 1.5, q[2]);
+  float g = udRoundBox(s, vec3(0.17, 0.5, 0.17), 0.2);
+
+  float sq = sqrt(0.5);
+  vec3 u = p;
+  u[0] = p[0] * sq + p[2] * sq;
+  u[1] = p[1];
+  u[2] = p[0] * sq - p[2] * sq;
+  d = max(d, -sdBoxXY(u, vec3(0.8, 1.0, 0.8)));
+
+  return smin(d, g, 16.0);
 }
 
 vec3 normal(vec3 p)
 {
-	vec3 o = vec3(0.001, 0.0, 0.0);
+  vec3 o = vec3(0.001, 0.0, 0.0);
   return normalize(vec3(map(p+o.permute(0,1,1))/*xyy*/ - map(p-o.permute(0,1,1))/*xyy*/,
                         map(p+o.permute(1,0,1))/*yxy*/ - map(p-o.permute(1,0,1))/*yxy*/,
                         map(p+o.permute(1,1,0))/*yyx*/ - map(p-o.permute(1,1,0))/*yyx*/));
@@ -160,9 +178,7 @@ float trace(vec3 o, vec3 r)
 {
   float t = 0.0;
   for (int i = 0; i < 16; ++i) {
-      vec3 p = o + r * t;
-      float d = map(p);
-      t += d;
+      t += map(o + r * t);
   }
   return t;
 }
@@ -171,46 +187,34 @@ GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& fragCoord, const G
 {
   vec2 uv = fragCoord / fragRes;
   uv = uv * 2.0 - 1.0;
-  uv[1] *= fragRes[1] / fragRes[0];
+  uv[0] *= fragRes[0] / fragRes[1];
 
-  vec3 r = normalize(vec3(uv, 0.5 - dot(uv, uv) * 0.66));
-  
-  r = r * yrot(0.5 + time * 3.14159 * 2.0);
-  r = r * zrot(time * 3.14159 * 4.0);
-  
-  vec3 o = vec3(0.0, 0.0, 5.0) * time * 4.0;
-  
+  float sgt = sin(time * 3.141592 * 2.0);
+
+  vec3 r = normalize(vec3(uv, 1.5 - dot(uv, uv) * 0.3));
+  r = r * zrot(sgt * 3.141592 * 0.125);
+  r = r * yrot(3.141592 * 0.25 + time * 3.141592 * 2.0);
+  r = r * yrot(3.141592 * -0.25);
+
+  vec3 o = vec3(0.0, sgt * 0.25, time * 5.0 * sqrt(2.0) * 2.0);
+  o = o * yrot(3.141592 * -0.25);
+
   float t = trace(o, r);
-  
   vec3 w = o + r * t;
   vec3 sn = normal(w);
-  
-  vec3 s = vec3(0.5);
-  
-  vec3 lv = normalize(vec3(1.0));
-  
-  float lp = max(dot(sn, lv), 0.0);
-  vec3 lc = vec3(1.0, 0.5, 0.0);
-  
-  float lp2 = max(dot(sn, -lv), 0.0);
-  vec3 lc2 = vec3(1.0, 0.6, 0.1);
-  
-  s += lp * lc;
-  s += lp2 * lc2;
-  s *= max(dot(r, -sn), 0.0);
-  
-  vec3 ref = reflect(r, sn);
-  float spec = max(dot(lv, ref), 0.0);
-  float spec2 = max(dot(-lv, ref), 0.0);
-  
-  spec = pow(spec, 16.0);
-  spec2 = pow(spec2, 16.0);
-  
-  float fog = 1.0 / (1.0 + t * t * 0.03);
-  
-  vec3 fc = s;
-  fc += spec * lc;
-  fc += spec2 * lc2;
+  float fd = map(w);
 
-  return fc * fog;
+  vec3 col = vec3(0.514, 0.851, 0.933);
+  vec3 ldir = normalize(vec3(0.5, 0.5, -sign(r[2])));
+
+  float fog = 1.0 / (1.0 + t * t * 0.1 + fd * 100.0);
+  float front = max(dot(r, -sn), 0.0);
+  float ref = max(dot(r, reflect(-ldir, sn)), 0.0);
+  float grn = pow(fabs(sn[1]), 8.0);
+  float invsqrt9 = sqrt(1.0/9.0);
+
+  vec3 cl = vec3(grn * 0.75);
+  cl += col * pow(ref, 16.0);
+  cl = mix(col, cl, fog);
+  return cl;
 }

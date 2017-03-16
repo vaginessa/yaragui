@@ -66,7 +66,7 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
   painter.setFont(getFont());
   QPen pen(QColor(255, 255, 255));
   painter.setPen(pen);
-  painter.drawText(pixmap.rect(), Qt::AlignCenter, "{} YARA GUI");
+  painter.drawText(pixmap.rect(), Qt::AlignCenter, "{ YARA GUI");
 
   if (frame->frameNumber == 0) {
     m_ui.gfx->setPixmap(pixmap);
@@ -189,14 +189,13 @@ GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& fragCoord, const G
   uv = uv * 2.0 - 1.0;
   uv[0] *= fragRes[0] / fragRes[1];
 
+  vec3 r = normalize(vec3(uv, 1.7 - dot(uv, uv) * 0.1));
   float sgt = sin(time * 3.141592 * 2.0);
-
-  vec3 r = normalize(vec3(uv, 1.5 - dot(uv, uv) * 0.3));
-  r = r * zrot(sgt * 3.141592 * 0.125);
-  r = r * yrot(3.141592 * 0.25 + time * 3.141592 * 2.0);
+  r = r * zrot(sgt * 3.141592 / 8.0);
+  r = r * yrot(3.141592 * 0.0 + time * 3.141592 * 2.0);
   r = r * yrot(3.141592 * -0.25);
 
-  vec3 o = vec3(0.0, sgt * 0.25, time * 5.0 * sqrt(2.0) * 2.0);
+  vec3 o = vec3(0.0, 0.0, time * 5.0 * sqrt(2.0) * 2.0);
   o = o * yrot(3.141592 * -0.25);
 
   float t = trace(o, r);
@@ -204,17 +203,16 @@ GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& fragCoord, const G
   vec3 sn = normal(w);
   float fd = map(w);
 
-  vec3 col = vec3(0.514, 0.851, 0.933);
-  vec3 ldir = normalize(vec3(0.5, 0.5, -sign(r[2])));
+  vec3 col = vec3(0.514, 0.851, 0.933) * 0.5;
+  vec3 ldir = normalize(vec3(-1, 0.5, 1.1));
 
   float fog = 1.0 / (1.0 + t * t * 0.1 + fd * 100.0);
   float front = max(dot(r, -sn), 0.0);
   float ref = max(dot(r, reflect(-ldir, sn)), 0.0);
-  float grn = pow(fabs(sn[1]), 8.0);
-  float invsqrt9 = sqrt(1.0/9.0);
+  float grn = pow(fabs(sn[1]), 3.0);
 
-  vec3 cl = vec3(grn * 0.75);
-  cl += col * pow(ref, 16.0);
+  vec3 cl = vec3(grn);
+  cl += mix(col*vec3(1.5), vec3(0.25), grn) * pow(ref, 16.0);
   cl = mix(col, cl, fog);
   return cl;
 }

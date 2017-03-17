@@ -147,7 +147,7 @@ float udRoundBox( vec3 p, vec3 b, float r )
 float map(vec3 p)
 {
   float k = 0.5 * 2.0;
-  vec3 q = (fract((p - vec3(0.2, 0.0, 0.2))/ k) - 0.5) * k;
+  vec3 q = (fract((p - vec3(0.25, 0.0, 0.25))/ k) - 0.5) * k;
   vec3 s = vec3(q[0], p[1], q[2]);
   float d = udRoundBox(s, vec3(0.1, 1.0, 0.1), 0.05);
 

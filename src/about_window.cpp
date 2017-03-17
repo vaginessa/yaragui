@@ -20,7 +20,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io, const QRect& parentGeometr
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_frames = std::vector<QPixmap>(25 * 5);
+  m_frames = std::vector<QPixmap>(60 * 5);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 
   m_player = new QTimer(this);
@@ -80,7 +80,7 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
   }
 
   if (m_frameIndex == m_frames.size()) {
-    m_player->start(1000 / 25);
+    m_player->start(1000 / 60);
   }
 }
 

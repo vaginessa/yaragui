@@ -689,9 +689,13 @@ Matrix<T,M,P> operator *(const Matrix<T,M,N>& lhs, const Matrix<T,N,P>& rhs) {
 
 template <typename T, int M, int N>
 Vector<T,M> mul(const Vector<T,N>& lhs, const Matrix<T,M,N>& rhs) {
-  Vector<T,M> r;
-  for (int i = 0; i < M; ++i) {
-    r[i] = dot(lhs, rhs[i]);
+  Vector<T,N> r;
+  for (int i = 0; i < N; ++i) {
+    T s = 0.0;
+    for (int j = 0; j < M; ++j) {
+      s += lhs[j] * rhs[j][i];
+    }
+    r[i] = s;
   }
   return r;
 }
@@ -707,7 +711,7 @@ Vector<T,N> mul(const Matrix<T,M,N>& lhs, const Vector<T,M>& rhs) {
   for (int i = 0; i < N; ++i) {
     T s = 0.0;
     for (int j = 0; j < M; ++j) {
-      s += lhs[j][i] * rhs[j];
+      s += lhs[i][j] * rhs[j];
     }
     r[i] = s;
   }

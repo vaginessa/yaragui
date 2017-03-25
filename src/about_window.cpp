@@ -20,7 +20,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io, const QRect& parentGeometr
 
   m_gfxRenderer = boost::make_shared<GfxRenderer>(boost::ref(io));
   m_gfxRenderer->setFrameCallback(boost::bind(&AboutWindow::handleFrameRendered, this, _1));
-  m_frames = std::vector<QPixmap>(60 * 5);
+  m_frames = std::vector<QPixmap>(30 * 5);
   m_gfxRenderer->render(320, 100, m_frames.size(), boost::make_shared<Shader>());
 
   m_player = new QTimer(this);
@@ -80,7 +80,7 @@ void AboutWindow::handleFrameRendered(GfxRenderer::Frame::Ref frame)
   }
 
   if (m_frameIndex == m_frames.size()) {
-    m_player->start(1000 / 60);
+    m_player->start(1000 / 30);
   }
 }
 
@@ -108,21 +108,21 @@ void AboutWindow::handleFrameFlip()
 mat3 xrot(float t)
 {
   return mat3(1.0, 0.0, 0.0,
-              0.0, cos(t), -sin(t),
-              0.0, sin(t), cos(t));
+              0.0, cos(t), sin(t),
+              0.0, -sin(t), cos(t));
 }
 
 mat3 yrot(float t)
 {
-  return mat3(cos(t), 0.0, sin(t),
+  return mat3(cos(t), 0.0, -sin(t),
               0.0, 1.0, 0.0,
-              -sin(t), 0.0, cos(t));
+              sin(t), 0.0, cos(t));
 }
 
 mat3 zrot(float t)
 {
-  return mat3(cos(t), -sin(t), 0.0,
-              sin(t), cos(t), 0.0,
+  return mat3(cos(t), sin(t), 0.0,
+              -sin(t), cos(t), 0.0,
               0.0, 0.0, 1.0);
 }
 
@@ -192,7 +192,7 @@ GfxMath::vec3 AboutWindow::Shader::shade(const GfxMath::vec2& fragCoord, const G
   vec3 r = normalize(vec3(uv, 1.7 - dot(uv, uv) * 0.1));
   float sgt = sin(time * 3.141592 * 2.0);
   r = r * zrot(sgt * 3.141592 / 8.0);
-  r = r * yrot(3.141592 * 0.0 + time * 3.141592 * 2.0);
+  r = r * yrot(time * 3.141592 * 2.0);
   r = r * yrot(3.141592 * -0.25);
 
   vec3 o = vec3(0.0, 0.0, time * 5.0 * sqrt(2.0) * 2.0);

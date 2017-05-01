@@ -28,7 +28,7 @@ AboutWindow::AboutWindow(boost::asio::io_service& io, const QRect& parentGeometr
 
   std::stringstream info;
   info << "<p align=\"center\">";
-  info << "<b>YARA GUI 0.4 BETA</b><br>";
+  info << "<b>YARA GUI 0.4</b><br>";
   info << "Built on " << __DATE__ << " at " << __TIME__ << "<br><br>";
   info << "Written in C++ by dila<br>";
   info << "For updates see:<br>";

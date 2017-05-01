@@ -176,7 +176,8 @@ void MainController::updateCompileWindows(const RulesetView::Ref& rule)
   }
 }
 
-void MainController::setCompileWindowsEnabled(bool state) {
+void MainController::setCompileWindowsEnabled(bool state)
+{
   BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
     window->setEnabled(state);
   }

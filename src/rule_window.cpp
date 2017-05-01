@@ -12,11 +12,6 @@
 
 RuleWindow::~RuleWindow()
 {
-  if (!isMaximized()) {
-    QByteArray state = saveGeometry();
-    QString encodedState(state.toBase64());
-    m_settings->setRuleWindowGeoemtry(encodedState.toStdString());
-  }
 }
 
 RuleWindow::RuleWindow(boost::shared_ptr<Settings> settings) : m_settings(settings)
@@ -246,6 +241,16 @@ void RuleWindow::dropEvent(QDropEvent* event)
 
   rulesToView(m_rules);
   event->acceptProposedAction();
+}
+
+void RuleWindow::closeEvent(QCloseEvent *closeEvent)
+{
+  if (!isMaximized()) {
+    QByteArray state = saveGeometry();
+    QString encodedState(state.toBase64());
+    m_settings->setRuleWindowGeoemtry(encodedState.toStdString());
+  }
+  QMainWindow::closeEvent(closeEvent);
 }
 
 void RuleWindow::rulesToView(const std::vector<RulesetView::Ref>& rules)

@@ -36,6 +36,7 @@ private:
 
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
+  void closeEvent(QCloseEvent *closeEvent);
 
   void rulesToView(const std::vector<RulesetView::Ref>& rules);
   std::vector<RulesetView::Ref> selectedItems();

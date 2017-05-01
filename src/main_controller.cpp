@@ -22,6 +22,18 @@ MainController::MainController(int argc, char* argv[], boost::asio::io_service& 
   m_mainWindow->onScanAbort.connect(boost::bind(&MainController::handleUserScanAbort, this));
 
   m_mainWindow->setRules(m_rm->getRules());
+
+  /* kick off a scan if we were started with a list of target files */
+  QStringList args = QApplication::arguments();
+  if (args.size() == 2) {
+    m_targets.clear();
+    for (size_t i = 1; i < args.size(); ++i) {
+      m_targets.push_back(args[i].toStdString());
+    }
+    m_ruleset = RulesetView::Ref(); /* scan with all rules */
+    m_haveRuleset = true;
+    scan();
+  }
 }
 
 void MainController::handleChangeTargets(const std::vector<std::string>& files)

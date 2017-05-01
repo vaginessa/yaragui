@@ -272,7 +272,7 @@ void MainWindow::handleTargetDirectoryBrowse()
 
 void MainWindow::handleRuleFileBrowse()
 {
-  QString file = QFileDialog::getOpenFileName(this, "Select Rule File", QString(), "YARA Rules (*.yara *.yar)");
+  QString file = QFileDialog::getOpenFileName(this, "Select Rule File", QString(), "YARA Rules (*)");
   if (!file.isEmpty()) {
     m_ui.rulePath->setText(file);
     onChangeRuleset(boost::make_shared<RulesetView>(file.toStdString()));

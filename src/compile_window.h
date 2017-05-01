@@ -17,7 +17,7 @@ public:
 
   boost::signals2::signal<void (RulesetView::Ref rule)> onRecompileRule;
 
-  void setCompilerBusy(bool state);
+  void setEnabled(bool state);
 
   RulesetView::Ref rule();
   void setRule(RulesetView::Ref rule);

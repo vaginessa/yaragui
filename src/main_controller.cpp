@@ -62,8 +62,9 @@ void MainController::handleRulesUpdated()
     updateCompileWindows(rule);
   }
 
-  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
-    window->setCompilerBusy(false);
+  if (!m_scanning) {
+    setCompileWindowsEnabled(true);
+    m_mainWindow->setCompilerBusy(false);
   }
 }
 
@@ -102,9 +103,8 @@ void MainController::handleRuleWindowCompile(RulesetView::Ref view)
 
 void MainController::handleCompileWindowRecompile(RulesetView::Ref view)
 {
-  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
-    window->setCompilerBusy(true);
-  }
+  m_mainWindow->setCompilerBusy(true);
+  setCompileWindowsEnabled(false);
   m_rm->compile(view);
 }
 
@@ -138,6 +138,8 @@ void MainController::handleOperationsComplete()
   if (m_ruleWindow) {
     m_ruleWindow->setEnabled(true);
   }
+
+  setCompileWindowsEnabled(true);
 }
 
 void MainController::scan()
@@ -150,6 +152,7 @@ void MainController::scan()
     if (m_ruleWindow) {
       m_ruleWindow->setEnabled(false);
     }
+    setCompileWindowsEnabled(false);
   }
 }
 
@@ -170,5 +173,11 @@ void MainController::updateCompileWindows(const RulesetView::Ref& rule)
     if (rule->file() == window->rule()->file()) {
       window->setRule(rule);
     }
+  }
+}
+
+void MainController::setCompileWindowsEnabled(bool state) {
+  BOOST_FOREACH(CompileWindow::Ref window, m_compileWindows) {
+    window->setEnabled(state);
   }
 }

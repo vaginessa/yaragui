@@ -688,11 +688,11 @@ Matrix<T,M,P> operator *(const Matrix<T,M,N>& lhs, const Matrix<T,N,P>& rhs) {
 }
 
 template <typename T, int M, int N>
-Vector<T,M> mul(const Vector<T,N>& lhs, const Matrix<T,M,N>& rhs) {
-  Vector<T,M> r;
-  for (int i = 0; i < M; ++i) {
+Vector<T,N> mul(const Vector<T,M>& lhs, const Matrix<T,M,N>& rhs) {
+  Vector<T,N> r;
+  for (int i = 0; i < N; ++i) {
     T s = 0.0;
-    for (int j = 0; j < N; ++j) {
+    for (int j = 0; j < M; ++j) {
       s += lhs[j] * rhs[j][i];
     }
     r[i] = s;
@@ -701,16 +701,16 @@ Vector<T,M> mul(const Vector<T,N>& lhs, const Matrix<T,M,N>& rhs) {
 }
 
 template <typename T, int M, int N>
-Vector<T,M> operator *(const Vector<T,N>& lhs, const Matrix<T,M,N>& rhs) {
+Vector<T,N> operator *(const Vector<T,M>& lhs, const Matrix<T,M,N>& rhs) {
   return mul(lhs, rhs);
 }
 
 template <typename T, int M, int N>
-Vector<T,N> mul(const Matrix<T,M,N>& lhs, const Vector<T,M>& rhs) {
-  Vector<T,N> r;
-  for (int i = 0; i < N; ++i) {
+Vector<T,M> mul(const Matrix<T,M,N>& lhs, const Vector<T,N>& rhs) {
+  Vector<T,M> r;
+  for (int i = 0; i < M; ++i) {
     T s = 0.0;
-    for (int j = 0; j < M; ++j) {
+    for (int j = 0; j < N; ++j) {
       s += lhs[i][j] * rhs[j];
     }
     r[i] = s;
@@ -719,7 +719,7 @@ Vector<T,N> mul(const Matrix<T,M,N>& lhs, const Vector<T,M>& rhs) {
 }
 
 template <typename T, int M, int N>
-Vector<T,N> operator *(const Matrix<T,M,N>& lhs, const Vector<T,M>& rhs) {
+Vector<T,M> operator *(const Matrix<T,M,N>& lhs, const Vector<T,N>& rhs) {
   return mul(lhs, rhs);
 }
 

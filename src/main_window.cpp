@@ -131,6 +131,14 @@ void MainWindow::scanEnd()
   }
 }
 
+void MainWindow::setCompilerBusy(bool state) {
+  /* prevent scan starting during rule compilation */
+  m_ui.targetPath->setEnabled(!state);
+  m_ui.targetButton->setEnabled(!state);
+  m_ui.rulePath->setEnabled(!state);
+  m_ui.ruleButton->setEnabled(!state);
+}
+
 void MainWindow::setRules(const std::vector<RulesetView::Ref>& rules)
 {
   m_rules = rules;

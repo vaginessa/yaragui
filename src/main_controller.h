@@ -41,6 +41,7 @@ private:
   void handleOperationsComplete();
   void scan();
   void updateCompileWindows(const RulesetView::Ref& rule);
+  void setCompileWindowsEnabled(bool state);
 
   boost::asio::io_service& m_io;
   boost::shared_ptr<Settings> m_settings;

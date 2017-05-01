@@ -33,6 +33,7 @@ public:
 
   void scanBegin();
   void scanEnd();
+  void setCompilerBusy(bool state);
   void setRules(const std::vector<RulesetView::Ref>& rules);
   void addScanResult(const std::string& target, ScannerRule::Ref rule, RulesetView::Ref view);
   void updateFileStats(FileStats::Ref stats);

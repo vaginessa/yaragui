@@ -250,6 +250,7 @@ void MainWindow::handleTargetFileBrowse()
 {
   QString file = QFileDialog::getOpenFileName(this, "Select Target File", QString(), "All Files (*)");
   if (!file.isEmpty()) {
+    file = QDir::toNativeSeparators(file);
     m_ui.targetPath->setText(file);
     m_ui.rulePath->setText(tr("")); /* need to select rules again */
     std::vector<std::string> targets;
@@ -262,6 +263,7 @@ void MainWindow::handleTargetDirectoryBrowse()
 {
   QString dir = QFileDialog::getExistingDirectory(this, "Select Target Directory");
   if (!dir.isEmpty()) {
+    dir = QDir::toNativeSeparators(dir);
     m_ui.targetPath->setText(dir);
     m_ui.rulePath->setText(tr("")); /* need to select rules again */
     std::vector<std::string> targets;
@@ -274,6 +276,7 @@ void MainWindow::handleRuleFileBrowse()
 {
   QString file = QFileDialog::getOpenFileName(this, "Select Rule File", QString(), "YARA Rules (*)");
   if (!file.isEmpty()) {
+    file = QDir::toNativeSeparators(file);
     m_ui.rulePath->setText(file);
     onChangeRuleset(boost::make_shared<RulesetView>(file.toStdString()));
   }

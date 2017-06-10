@@ -196,7 +196,7 @@ void RulesetManager::scanWithCompiledRules()
     QStringList files = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
     for (int i = 0; i < files.size(); ++i) {
       int j = files.size() - i - 1;
-      QString fullPath = dir.absoluteFilePath(files[j]);
+      QString fullPath = QDir::toNativeSeparators(dir.absoluteFilePath(files[j]));
       m_queueTargets.push_front(fullPath.toStdString());
     }
     /* try again, recurse into more subdirectories if needed */
